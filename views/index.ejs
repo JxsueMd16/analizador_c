@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Analizador Léxico (subconjunto de C)</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Analizador Léxico (subconjunto de C)</h1>
+
+  <form action="/analizar" method="POST">
+    <textarea name="codigo" rows="10" cols="50" placeholder="Escribe tu código aquí..."></textarea>
+    <br>
+    <button type="submit">Analizar</button>
+  </form>
+
+  <% if (resultado && resultado.length > 0) { %>
+    <h2>Tokens Generados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Lexema</th>
+          <th>Categoría</th>
+          <th>Token</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% resultado.forEach((t, index) => { %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td><%= t.lexema %></td>
+            <td><%= t.categoria %></td>
+            <td><%= t.token %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } %>
+
+</body>
+</html>
