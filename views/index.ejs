@@ -3,40 +3,127 @@
 <head>
   <meta charset="UTF-8">
   <title>Analizador Léxico (subconjunto de C)</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <h1>Analizador Léxico (subconjunto de C)</h1>
+  <div class="container">
+    <div class="header">
+      <h1>Analizador Léxico</h1>
+      <p>Subconjunto del Lenguaje C</p>
+    </div>
 
-  <form action="/analizar" method="POST">
-    <textarea name="codigo" rows="10" cols="50" placeholder="Escribe tu código aquí..."></textarea>
-    <br>
-    <button type="submit">Analizar</button>
-  </form>
+    <div class="main-content">
+      <div class="input-section">
+        <form action="/analizar" method="POST">
+          <div class="code-input-container">
+            <div class="line-numbers" id="lineNumbers">1</div>
+            <textarea name="codigo" id="codigo" rows="15" placeholder="Escribe tu código aquí..." oninput="updateLineNumbers(this)"><%= resultado ? resultado.codigoOriginal : '' %></textarea>
+          </div>
+          <div class="controls">
+            <button type="submit" class="btn">Analizar Código</button>
+            <a href="/documentacion" class="btn btn-secondary">Ver Documentación</a>
+          </div>
+        </form>
+      </div>
 
-  <% if (resultado && resultado.length > 0) { %>
-    <h2>Tokens Generados</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Lexema</th>
-          <th>Categoría</th>
-          <th>Token</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% resultado.forEach((t, index) => { %>
-          <tr>
-            <td><%= index + 1 %></td>
-            <td><%= t.lexema %></td>
-            <td><%= t.categoria %></td>
-            <td><%= t.token %></td>
-          </tr>
-        <% }); %>
-      </tbody>
-    </table>
-  <% } %>
+      <% if (resultado) { %>
+        <div class="success-message">
+          <h3>Análisis Completado</h3>
+          <% if (resultado.errores === 0) { %>
+            <p>El código ha sido analizado exitosamente sin errores léxicos.</p>
+          <% } else { %>
+            <p>Se encontraron errores léxicos. Revisa el listado abajo.</p>
+          <% } %>
+        </div>
 
+        <div class="results-grid">
+          <div class="stats-panel">
+            <h3>Estadísticas</h3>
+            <div class="stat-item"><span class="stat-label">Líneas analizadas:</span><span class="stat-value"><%= resultado.lineasAnalizadas %></span></div>
+            <div class="stat-item"><span class="stat-label">Tokens generados:</span><span class="stat-value"><%= resultado.tokensGenerados %></span></div>
+            <div class="stat-item"><span class="stat-label">Identificadores únicos:</span><span class="stat-value"><%= resultado.identificadoresUnicos %></span></div>
+            <div class="stat-item"><span class="stat-label">Errores léxicos:</span><span class="stat-value" style="background:#e53e3e;"><%= resultado.errores %></span></div>
+          </div>
+
+          <% if (resultado.erroresDetalle.length > 0) { %>
+            <div class="error-panel show">
+              <h3>Errores Léxicos Encontrados</h3>
+              <% resultado.erroresDetalle.forEach(error => { %>
+                <div class="error-item">
+                  <div>Error en lexema: <span class="error-lexeme"><%= error.lexema %></span></div>
+                  <div class="error-line">Línea <%= error.linea %> - Tipo: <%= error.tipo %></div>
+                </div>
+              <% }); %>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="table-container">
+          <div class="table-header">
+            <h3>Tabla de Símbolos / Identificadores</h3>
+            <div class="table-subtitle">Identificadores únicos encontrados en el código</div>
+          </div>
+          <div class="symbols-table">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Identificador</th><th>Token</th><th>Primera aparición (línea)</th></tr>
+              </thead>
+              <tbody>
+                <% if (resultado.simbolos.length > 0) { %>
+                  <% resultado.simbolos.forEach(simbolo => { %>
+                    <tr>
+                      <td><%= simbolo.id %></td>
+                      <td><code><%= simbolo.nombre %></code></td>
+                      <td><%= simbolo.token %></td>
+                      <td><%= simbolo.linea %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr><td colspan="4" class="no-results">No se encontraron identificadores</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <div class="table-header">
+            <h3>Tokens Generados</h3>
+            <div class="table-subtitle">Lista completa de tokens identificados</div>
+          </div>
+          <div class="symbols-table">
+            <table>
+              <thead>
+                <tr><th>#</th><th>Línea</th><th>Lexema</th><th>Categoría</th><th>Token</th></tr>
+              </thead>
+              <tbody>
+                <% resultado.tokens.forEach((t, index) => { %>
+                  <tr>
+                    <td><%= index + 1 %></td>
+                    <td><%= t.linea %></td>
+                    <td><code><%= t.lexema %></code></td>
+                    <td><span class="categoria-tag categoria-<%= t.categoria.toLowerCase().replace(/\s+/g, '-').replace(/[áéíóú]/g, c => ({á:'a',é:'e',í:'i',ó:'o',ú:'u'})[c]) %>"><%= t.categoria %></span></td>
+                    <td><%= t.token %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    function updateLineNumbers(textarea) {
+      const lines = textarea.value.split('\\n').length;
+      const lineNumbers = document.getElementById('lineNumbers');
+      let lineNumberText = '';
+      for (let i = 1; i <= lines; i++) {
+        lineNumberText += i + '\\n';
+      }
+      lineNumbers.textContent = lineNumberText;
+    }
+  </script>
 </body>
 </html>

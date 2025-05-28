@@ -68,3 +68,26 @@ table tr:nth-child(even) {
 table tr:hover {
   background-color: #e6f7ff;
 }
+.btn {
+  display: inline-block;
+  padding: 12px 24px;
+  margin: 20px 0;
+  background-color: #0066cc;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.btn:active {
+  background-color: #1d4ed8;
+  transform: translateY(0);
+}

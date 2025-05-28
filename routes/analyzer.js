@@ -12,5 +12,11 @@ router.post('/analizar', (req, res) => {
   res.render('index', { resultado });
 });
 
+router.get('/documentacion', (req, res) => {
+  res.render('documentacion', { resultado: null });
+});
+
+
+
 module.exports = router;
   

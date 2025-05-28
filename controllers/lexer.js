@@ -2,13 +2,13 @@ const Token = require('../models/token');
 
 exports.analizar = (codigo) => {
   const palabrasClave = [
-    'int', 'float', 'char', 'if', 'else', 'while', 'return',
+    'int', 'double', 'float', 'char', 'if', 'else', 'while', 'return',
     'switch', 'case', 'break', 'default', 'for', 'do', 'void', 'printf', 'scanf'
   ];
 
   // Regex  - patrones ordenados por especificidad
   // IMPORTANTE: Los patrones más específicos van PRIMERO
-  const regex = /(=<|=>|=!|!>|!<|<>)|(#\w+)|(\"(?:[^"\\]|\\.)*\"?)|(\"[^"]*$)|('(?:[^'\\]|\\.)*'?)|('$)|(<.*?>)|(\/\/.*)|\/\*[\s\S]*?\*\/|(\/\*[\s\S]*$)|(0x[0-9a-fA-F]*[g-zG-Z]+[0-9a-fA-F]*)|(\d+\.\d*\.[\d.]*)|(\d*\.\d+\.[\d.]*)|(\d+\.\d+e[+-]?\d*[^0-9])|(\d+e[+-]?[^0-9])|(\d+e$)|(\d+\.\d+)|(\d+\.)|([0-9]+[a-zA-Z_][a-zA-Z0-9_]*)|([a-zA-Z_][a-zA-Z0-9_]*[$@#%^&`~\\]+[a-zA-Z0-9_]*)|([=!<>]=?|&&|\|\||\+\+|--|[+\-*/%=<>!])|(\d+)|([a-zA-Z_][a-zA-Z0-9_]*)|([;:,(){}[\]])|(\S)/g;
+  const regex = /(=<|=>|=!|!>|!<|<>)|(#\w+)|(\"(?:[^"\\]|\\.)*\"?)|(\"[^"]*$)|('(?:[^'\\]|\\.)*'?)|('$)|(<.*?>)|(\/\/.*)|\/\*[\s\S]*?\*\/|(\/\*[\s\S]*$)|(0x[0-9a-fA-F]*[g-zG-Z]+[0-9a-fA-F]*)|(\d+\.\d*\.[\d.]*)|(\d*\.\d+\.[\d.]*)|(\d+\.\d+e[+-]?\d+)|(\d+e[+-]?\d+)|(\d+\.\d+e[+-]?$)|(\d+e[+-]?$)|(\d+e$)|(0x[0-9a-fA-F]+)|(\d+\.\d+)|(\d+\.)|([0-9]+[a-zA-Z_][a-zA-Z0-9_]*)|([a-zA-Z_][a-zA-Z0-9_]*[$@#%^&`~\\]+[a-zA-Z0-9_]*)|([=!<>]=?|&&|\|\||\+\+|--|[+\-*/%=<>!])|(\d+)|([a-zA-Z_][a-zA-Z0-9_]*)|([;:,(){}[\]])|(\S)/g;
 
   let match;
   const tablaTokens = [];
@@ -23,19 +23,27 @@ exports.analizar = (codigo) => {
     'Carácter': 1,
     'Número decimal': 1,
     'Número entero': 1,
+    'Número hexadecimal': 1,
     'Comentario': 1,
     'Operador lógico': 1,
     'Operador relacional': 1,
     'Operador aritmético': 1,
     'Operador de asignación': 1,
-    'Operador de incremento/decremento': 1,
+    'Operador de incremento-decremento': 1,
     'Delimitador': 1,
     'Archivo de biblioteca': 1,
     'Error léxico': 1
   };
 
+  // Función para calcular el número de línea basado en la posición
+  const calcularLinea = (posicion) => {
+    return codigo.substring(0, posicion).split('\n').length;
+  };
+
   while ((match = regex.exec(codigo)) !== null) {
     const lexema = match[0];
+    const posicion = match.index;
+    const numeroLinea = calcularLinea(posicion);
     let categoria = '';
 
     // Clasificación detallada con detección de errores
@@ -73,13 +81,21 @@ exports.analizar = (codigo) => {
     else if (/^\/\*[\s\S]*$/.test(lexema) && !lexema.endsWith('*/')) {
       categoria = 'Error léxico';
     }
+    // Números hexadecimales válidos
+    else if (/^0x[0-9a-fA-F]+$/.test(lexema)) {
+      categoria = 'Número hexadecimal';
+    }
     // Hexadecimal con dígitos inválidos
-    else if (/^0x[0-9a-fA-F]*[g-zG-Z]+/.test(lexema)) {
+    else if (/^0x[0-9a-fA-F]*[g-zG-Z]+[0-9a-fA-F]*$/.test(lexema)) {
       categoria = 'Error léxico';
+    }
+    // Números en notación científica válidos (332.41e-1, 123e+5, etc.)
+    else if (/^\d+\.\d+e[+-]?\d+$/.test(lexema) || /^\d+e[+-]?\d+$/.test(lexema)) {
+      categoria = 'Número decimal';
     }
     // Números mal formados (múltiples puntos, notación científica incorrecta, etc.)
     else if (/^\d+\.\d*\.[\d.]*$/.test(lexema) || /^\d*\.\d+\.[\d.]*$/.test(lexema) || 
-             /^\d+\.\d+e[+-]?\d*[^0-9]/.test(lexema) || /^\d+e[+-]?[^0-9]/.test(lexema) || 
+             /^\d+\.\d+e[+-]?$/.test(lexema) || /^\d+e[+-]?$/.test(lexema) || 
              /^\d+e$/.test(lexema)) {
       categoria = 'Error léxico';
     }
@@ -113,7 +129,7 @@ exports.analizar = (codigo) => {
     }
     // Operadores de incremento/decremento
     else if (/^\+\+$|^--$/.test(lexema)) {
-      categoria = 'Operador de incremento/decremento';
+      categoria = 'Operador de incremento-decremento';
     }
     // Operador de asignación
     else if (/^=$/.test(lexema)) {
@@ -129,16 +145,33 @@ exports.analizar = (codigo) => {
     }
     // Identificadores válidos (con verificación de palabras clave pegadas)
     else if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(lexema)) {
-      // Verificar si es una palabra clave pegada a otra palabra (if123)
+      // Verificar si es una palabra clave pegada directamente con números o letras
       let esPalabraPegada = false;
       for (let palabra of palabrasClave) {
         if (lexema.startsWith(palabra) && lexema.length > palabra.length) {
           const resto = lexema.substring(palabra.length);
-          // Si después de la palabra clave hay más caracteres alfanuméricos
-          if (/^[a-zA-Z0-9_]/.test(resto)) {
+          
+          // Es error si la palabra clave está seguida directamente de dígitos
+          // Ejemplo: int123, if456, while789
+          if (/^[0-9]/.test(resto)) {
             categoria = 'Error léxico';
             esPalabraPegada = true;
             break;
+          }
+          
+          // También es error si es claramente una palabra clave pegada con otra palabra
+          // pero solo para casos obvios, permitiendo palabras naturales como "dos"
+          if (lexema === palabra + resto && resto.length <= 6) {
+            // Lista específica de palabras que SÍ son válidas aunque contengan palabras clave
+            const palabrasValidas = ['dos', 'case', 'else', 'char', 'void'];
+            if (!palabrasValidas.includes(lexema)) {
+              // Para casos como "intnumero", "ifcondition", etc.
+              if (resto.match(/^(numero|condition|statement|variable|function|method)$/i)) {
+                categoria = 'Error léxico';
+                esPalabraPegada = true;
+                break;
+              }
+            }
           }
         }
       }
@@ -171,7 +204,8 @@ exports.analizar = (codigo) => {
       contadores[categoria] = token + 1;
     }
 
-    tablaTokens.push(new Token(lexema, categoria, token));
+    // Crear el token con el número de línea
+    tablaTokens.push(new Token(lexema, categoria, token, numeroLinea));
   }
 
   return tablaTokens;

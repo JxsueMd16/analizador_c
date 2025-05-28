@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Documentación del Compilador - GIC</title>
+  <link rel="stylesheet" href="/css/documentacion.css">
+
+</head>
+<body>
+  <h1>Documentación del Compilador</h1>
+
+   <div class="seccion">
+      <h2>Expresiones Regulares (ER)</h2>
+      <pre>
+// IDENTIFICADORES Y LITERALES
+Identificador:     [a-zA-Z_][a-zA-Z0-9_]*
+Número entero:     [0-9]+
+Número decimal:    [0-9]+\.[0-9]+
+Cadena:           "([^"\\]|\\.)*"
+Caracter:         '([^'\\]|\\.)'
+
+// PALABRAS CLAVE
+PalabrasClave:    int|float|char|void|if|else|while|for|do|switch|case|break|default|return|printf|scanf
+
+// OPERADORES
+OperadorAsignacion:    =|\+=|-=|\*=|/=|%=
+OperadorLogico:        &&|\|\||!
+OperadorRelacional:    ==|!=|<=|>=|<|>
+OperadorAritmetico:    \+|-|\*|/|%
+OperadorUnario:        \+\+|--|&|\*|!|\+|-
+OperadorAcceso:        \.|->
+
+// DELIMITADORES
+Delimitadores:    [;:,(){}\[\]]
+Parentesis:       \(|\)
+Llaves:          \{|\}
+Corchetes:       \[|\]
+
+// PREPROCESADOR
+DirectivaPreprocesador: #include|#define
+Biblioteca:            <[a-zA-Z_][a-zA-Z0-9_]*\.h>|"[a-zA-Z_][a-zA-Z0-9_]*\.h"
+
+// ESPACIOS Y COMENTARIOS
+EspacioBlanco:    [ \t\n\r]+
+ComentarioLinea:  //[^\n]*
+ComentarioBloque: /\*([^*]|\*+[^*/])*\*+/
+      </pre>
+    </div>
+
+  </div>
+
+
+  <div class="contenedor">
+    <div class="seccion">
+      <h2>Gramática Incontextual (GIC) Completa</h2>
+      <pre>
+// ESTRUCTURA PRINCIPAL
+Programa → Preprocesador Declaraciones FuncionPrincipal OtrasFunciones
+Programa → FuncionPrincipal
+
+// PREPROCESADOR
+Preprocesador → DirectivaPreprocesador Preprocesador | ε
+DirectivaPreprocesador → #include Biblioteca | #define id Valor
+Biblioteca → < id . h > | " id . h "
+Valor → num | cadena | id
+
+// DECLARACIONES GLOBALES
+Declaraciones → Declaracion Declaraciones | ε
+Declaracion → DeclaracionVariable | DeclaracionArreglo | DeclaracionPuntero | DeclaracionFuncion
+
+// TIPOS Y VARIABLES
+Tipo → TipoBasico Modificador
+TipoBasico → int | float | char | void
+Modificador → * | ε
+
+DeclaracionVariable → Tipo ListaIdentificadores ;
+ListaIdentificadores → id InicializacionOpcional MoreIds
+MoreIds → , id InicializacionOpcional MoreIds | ε
+InicializacionOpcional → = Expresion | ε
+
+DeclaracionArreglo → Tipo id [ num ] ; | Tipo id [ ] = { ListaValores } ;
+ListaValores → Expresion , ListaValores | Expresion
+
+DeclaracionPuntero → Tipo * id ; | Tipo * id = & id ;
+
+// FUNCIONES
+FuncionPrincipal → TipoRetorno main ( Parametros ) { CuerpoFuncion Return }
+OtrasFunciones → Funcion OtrasFunciones | ε
+Funcion → TipoRetorno id ( Parametros ) { CuerpoFuncion ReturnOpcional }
+DeclaracionFuncion → TipoRetorno id ( Parametros ) ;
+
+TipoRetorno → int | float | char | void
+Parametros → ListaParametros | void | ε
+ListaParametros → Parametro , ListaParametros | Parametro
+Parametro → Tipo id | Tipo * id | Tipo id [ ]
+
+CuerpoFuncion → DeclaracionesLocales ListaSentencias
+DeclaracionesLocales → Declaracion DeclaracionesLocales | ε
+
+Return → return Expresion ; | return ;
+ReturnOpcional → Return | ε
+
+// SENTENCIAS
+ListaSentencias → Sentencia ListaSentencias | ε
+Sentencia → SentenciaSimple | SentenciaControl | BloqueCompuesto
+
+SentenciaSimple → Asignacion ; | LlamadaFuncion ; | ExpresionIncDec ; | ;
+SentenciaControl → If | While | For | DoWhile | Switch
+BloqueCompuesto → { ListaSentencias }
+
+// ASIGNACIONES
+Asignacion → Variable OperadorAsignacion Expresion
+Variable → id | id [ Expresion ] | * id | id . id
+OperadorAsignacion → = | += | -= | *= | /= | %=
+
+ExpresionIncDec → Variable ++ | Variable -- | ++ Variable | -- Variable
+
+// EXPRESIONES (Jerarquía de operadores)
+Expresion → ExpresionLogica
+ExpresionLogica → ExpresionLogica || ExpresionAnd | ExpresionAnd
+ExpresionAnd → ExpresionAnd && ExpresionIgualdad | ExpresionIgualdad
+ExpresionIgualdad → ExpresionIgualdad OperadorIgualdad ExpresionRelacional | ExpresionRelacional
+ExpresionRelacional → ExpresionRelacional OperadorRelacional ExpresionAditiva | ExpresionAditiva
+ExpresionAditiva → ExpresionAditiva OperadorAditivo ExpresionMultiplicativa | ExpresionMultiplicativa
+ExpresionMultiplicativa → ExpresionMultiplicativa OperadorMultiplicativo ExpresionUnaria | ExpresionUnaria
+ExpresionUnaria → OperadorUnario ExpresionUnaria | ExpresionPostfija
+ExpresionPostfija → ExpresionPrimaria | ExpresionPostfija [ Expresion ] | 
+                   ExpresionPostfija ( ArgumentosOpcionales ) | ExpresionPostfija ++ | ExpresionPostfija --
+ExpresionPrimaria → id | num | caracter | cadena | ( Expresion )
+
+// OPERADORES
+OperadorIgualdad → == | !=
+OperadorRelacional → < | > | <= | >=
+OperadorAditivo → + | -
+OperadorMultiplicativo → * | / | %
+OperadorUnario → + | - | ! | * | &
+
+// ESTRUCTURAS DE CONTROL
+If → if ( Condicion ) Sentencia ElseOpcional
+ElseOpcional → else Sentencia | ε
+
+While → while ( Condicion ) Sentencia
+
+For → for ( InicializacionFor ; CondicionFor ; ActualizacionFor ) Sentencia
+InicializacionFor → Asignacion | DeclaracionVariable | ε
+CondicionFor → Condicion | ε
+ActualizacionFor → Asignacion | ExpresionIncDec | ε
+
+DoWhile → do Sentencia while ( Condicion ) ;
+
+Switch → switch ( Expresion ) { ListaCasos CasoDefaultOpcional }
+ListaCasos → Caso ListaCasos | ε
+Caso → case Expresion : ListaSentencias BreakOpcional
+CasoDefaultOpcional → default : ListaSentencias | ε
+BreakOpcional → break ; | ε
+
+Condicion → Expresion
+
+// LLAMADAS A FUNCIONES
+LlamadaFuncion → id ( ArgumentosOpcionales )
+ArgumentosOpcionales → ListaArgumentos | ε
+ListaArgumentos → Argumento , ListaArgumentos | Argumento
+Argumento → Expresion
+
+// FUNCIONES DE E/S
+Print → printf ( FormatoCadena ArgumentosOpcionales )
+Scanf → scanf ( FormatoCadena , DireccionVariable )
+FormatoCadena → cadena
+DireccionVariable → & Variable | Variable
+      </pre>
+    </div>
+
+    <div class="seccion">
+      <h2>BNF (Backus-Naur Form)</h2>
+      <pre>
+&lt;Programa&gt; ::= &lt;Preprocesador&gt; &lt;Declaraciones&gt; &lt;FuncionPrincipal&gt; &lt;OtrasFunciones&gt; | &lt;FuncionPrincipal&gt;
+&lt;Preprocesador&gt; ::= &lt;DirectivaPreprocesador&gt; &lt;Preprocesador&gt; | ε
+&lt;DirectivaPreprocesador&gt; ::= "#include" &lt;Biblioteca&gt; | "#define" &lt;id&gt; &lt;Valor&gt;
+&lt;Biblioteca&gt; ::= "&lt;" &lt;id&gt; "." "h" "&gt;" | """ &lt;id&gt; "." "h" """
+&lt;Valor&gt; ::= &lt;num&gt; | &lt;cadena&gt; | &lt;id&gt;
+
+&lt;Declaraciones&gt; ::= &lt;Declaracion&gt; &lt;Declaraciones&gt; | ε
+&lt;Declaracion&gt; ::= &lt;DeclaracionVariable&gt; | &lt;DeclaracionArreglo&gt; | &lt;DeclaracionPuntero&gt; | &lt;DeclaracionFuncion&gt;
+
+&lt;Tipo&gt; ::= &lt;TipoBasico&gt; &lt;Modificador&gt;
+&lt;TipoBasico&gt; ::= "int" | "float" | "char" | "void"
+&lt;Modificador&gt; ::= "*" | ε
+
+&lt;DeclaracionVariable&gt; ::= &lt;Tipo&gt; &lt;ListaIdentificadores&gt; ";"
+&lt;ListaIdentificadores&gt; ::= &lt;id&gt; &lt;InicializacionOpcional&gt; &lt;MoreIds&gt;
+&lt;MoreIds&gt; ::= "," &lt;id&gt; &lt;InicializacionOpcional&gt; &lt;MoreIds&gt; | ε
+&lt;InicializacionOpcional&gt; ::= "=" &lt;Expresion&gt; | ε
+
+&lt;FuncionPrincipal&gt; ::= &lt;TipoRetorno&gt; "main" "(" &lt;Parametros&gt; ")" "{" &lt;CuerpoFuncion&gt; &lt;Return&gt; "}"
+&lt;TipoRetorno&gt; ::= "int" | "float" | "char" | "void"
+&lt;Parametros&gt; ::= &lt;ListaParametros&gt; | "void" | ε
+&lt;ListaParametros&gt; ::= &lt;Parametro&gt; "," &lt;ListaParametros&gt; | &lt;Parametro&gt;
+&lt;Parametro&gt; ::= &lt;Tipo&gt; &lt;id&gt; | &lt;Tipo&gt; "*" &lt;id&gt; | &lt;Tipo&gt; &lt;id&gt; "[" "]"
+
+&lt;CuerpoFuncion&gt; ::= &lt;DeclaracionesLocales&gt; &lt;ListaSentencias&gt;
+&lt;ListaSentencias&gt; ::= &lt;Sentencia&gt; &lt;ListaSentencias&gt; | ε
+&lt;Sentencia&gt; ::= &lt;SentenciaSimple&gt; | &lt;SentenciaControl&gt; | &lt;BloqueCompuesto&gt;
+
+&lt;SentenciaSimple&gt; ::= &lt;Asignacion&gt; ";" | &lt;LlamadaFuncion&gt; ";" | &lt;ExpresionIncDec&gt; ";" | ";"
+&lt;SentenciaControl&gt; ::= &lt;If&gt; | &lt;While&gt; | &lt;For&gt; | &lt;DoWhile&gt; | &lt;Switch&gt;
+
+&lt;Asignacion&gt; ::= &lt;Variable&gt; &lt;OperadorAsignacion&gt; &lt;Expresion&gt;
+&lt;Variable&gt; ::= &lt;id&gt; | &lt;id&gt; "[" &lt;Expresion&gt; "]" | "*" &lt;id&gt; | &lt;id&gt; "." &lt;id&gt;
+&lt;OperadorAsignacion&gt; ::= "=" | "+=" | "-=" | "*=" | "/=" | "%="
+
+&lt;Expresion&gt; ::= &lt;ExpresionLogica&gt;
+&lt;ExpresionLogica&gt; ::= &lt;ExpresionLogica&gt; "||" &lt;ExpresionAnd&gt; | &lt;ExpresionAnd&gt;
+&lt;ExpresionAnd&gt; ::= &lt;ExpresionAnd&gt; "&amp;&amp;" &lt;ExpresionIgualdad&gt; | &lt;ExpresionIgualdad&gt;
+&lt;ExpresionIgualdad&gt; ::= &lt;ExpresionIgualdad&gt; &lt;OperadorIgualdad&gt; &lt;ExpresionRelacional&gt; | &lt;ExpresionRelacional&gt;
+&lt;ExpresionRelacional&gt; ::= &lt;ExpresionRelacional&gt; &lt;OperadorRelacional&gt; &lt;ExpresionAditiva&gt; | &lt;ExpresionAditiva&gt;
+&lt;ExpresionAditiva&gt; ::= &lt;ExpresionAditiva&gt; &lt;OperadorAditivo&gt; &lt;ExpresionMultiplicativa&gt; | &lt;ExpresionMultiplicativa&gt;
+&lt;ExpresionMultiplicativa&gt; ::= &lt;ExpresionMultiplicativa&gt; &lt;OperadorMultiplicativo&gt; &lt;ExpresionUnaria&gt; | &lt;ExpresionUnaria&gt;
+&lt;ExpresionUnaria&gt; ::= &lt;OperadorUnario&gt; &lt;ExpresionUnaria&gt; | &lt;ExpresionPostfija&gt;
+&lt;ExpresionPostfija&gt; ::= &lt;ExpresionPrimaria&gt; | &lt;ExpresionPostfija&gt; "[" &lt;Expresion&gt; "]" | 
+                        &lt;ExpresionPostfija&gt; "(" &lt;ArgumentosOpcionales&gt; ")" | &lt;ExpresionPostfija&gt; "++" | &lt;ExpresionPostfija&gt; "--"
+&lt;ExpresionPrimaria&gt; ::= &lt;id&gt; | &lt;num&gt; | &lt;caracter&gt; | &lt;cadena&gt; | "(" &lt;Expresion&gt; ")"
+
+&lt;OperadorIgualdad&gt; ::= "==" | "!="
+&lt;OperadorRelacional&gt; ::= "&lt;" | "&gt;" | "&lt;=" | "&gt;="
+&lt;OperadorAditivo&gt; ::= "+" | "-"
+&lt;OperadorMultiplicativo&gt; ::= "*" | "/" | "%"
+&lt;OperadorUnario&gt; ::= "+" | "-" | "!" | "*" | "&amp;"
+
+&lt;If&gt; ::= "if" "(" &lt;Condicion&gt; ")" &lt;Sentencia&gt; &lt;ElseOpcional&gt;
+&lt;ElseOpcional&gt; ::= "else" &lt;Sentencia&gt; | ε
+&lt;While&gt; ::= "while" "(" &lt;Condicion&gt; ")" &lt;Sentencia&gt;
+&lt;For&gt; ::= "for" "(" &lt;InicializacionFor&gt; ";" &lt;CondicionFor&gt; ";" &lt;ActualizacionFor&gt; ")" &lt;Sentencia&gt;
+&lt;DoWhile&gt; ::= "do" &lt;Sentencia&gt; "while" "(" &lt;Condicion&gt; ")" ";"
+&lt;Switch&gt; ::= "switch" "(" &lt;Expresion&gt; ")" "{" &lt;ListaCasos&gt; &lt;CasoDefaultOpcional&gt; "}"
+
+&lt;LlamadaFuncion&gt; ::= &lt;id&gt; "(" &lt;ArgumentosOpcionales&gt; ")"
+&lt;ArgumentosOpcionales&gt; ::= &lt;ListaArgumentos&gt; | ε
+&lt;ListaArgumentos&gt; ::= &lt;Argumento&gt; "," &lt;ListaArgumentos&gt; | &lt;Argumento&gt;
+&lt;Argumento&gt; ::= &lt;Expresion&gt;
+      </pre>
+    </div>
+
+   
+</body>
+</html>
