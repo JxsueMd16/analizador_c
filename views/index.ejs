@@ -2,13 +2,20 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Analizador Léxico (subconjunto de C)</title>
+  <title>Analizador Léxico y Sintáctico (subconjunto de C)</title>
   <link rel="stylesheet" href="/css/style.css">
+
+  <!-- Treant.js CSS -->
+  <link rel="stylesheet" href="https://fperucic.github.io/treant-js/Treant.css" type="text/css" />
+  <!-- Raphael.js (dependencia) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
+  <!-- Treant.js -->
+  <script src="https://cdn.jsdelivr.net/gh/fperucic/treant-js/Treant.min.js"></script>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Analizador Léxico</h1>
+      <h1>Analizador Léxico y Sintáctico</h1>
       <p>Subconjunto del Lenguaje C</p>
     </div>
 
@@ -21,6 +28,7 @@
           </div>
           <div class="controls">
             <button type="submit" class="btn">Analizar Código</button>
+            <button formaction="/analizar-sintactico" formmethod="POST" class="btn btn-secondary">Analizar Sintáctico</button>
             <a href="/documentacion" class="btn btn-secondary">Ver Documentación</a>
           </div>
         </form>
@@ -28,7 +36,7 @@
 
       <% if (resultado) { %>
         <div class="success-message">
-          <h3>Análisis Completado</h3>
+          <h3>Análisis Léxico Completado</h3>
           <% if (resultado.errores === 0) { %>
             <p>El código ha sido analizado exitosamente sin errores léxicos.</p>
           <% } else { %>
@@ -111,16 +119,57 @@
           </div>
         </div>
       <% } %>
+
+      <% if (arbol) { %>
+        <div class="tree-container">
+          <h3>Árbol Sintáctico</h3>
+          <div id="tree-simple" class="Treant"></div>
+          <script>
+            var dataArbol = <%- JSON.stringify(arbol) %>;
+            console.log("Datos del árbol:", dataArbol);
+
+            if (!dataArbol || Object.keys(dataArbol).length === 0) {
+              document.getElementById('tree-simple').innerHTML = '<p>No se pudo generar el árbol sintáctico</p>';
+            } else {
+              var config = {
+                chart: {
+                  container: "#tree-simple",
+                  rootOrientation: 'NORTH',
+                  node: { HTMLclass: 'node nodo-treant' },
+                  connectors: { 
+                    type: 'step', 
+                    style: { 'stroke-width': 2, 'stroke': '#3498db' }
+                  },
+                  animation: { nodeAnimation: "easeOutBounce", nodeSpeed: 700, connectorsAnimation: "bounce", connectorsSpeed: 700 }
+                },
+                nodeStructure: dataArbol
+              };
+              new Treant(config);
+            }
+          </script>
+        </div>
+
+        <% if (erroresSintacticos && erroresSintacticos.length > 0) { %>
+          <div class="error-panel show">
+            <h3>Errores Sintácticos Encontrados</h3>
+            <% erroresSintacticos.forEach(error => { %>
+              <div class="error-item">
+                <div><%= error %></div>
+              </div>
+            <% }); %>
+          </div>
+        <% } %>
+      <% } %>
     </div>
   </div>
 
   <script>
     function updateLineNumbers(textarea) {
-      const lines = textarea.value.split('\\n').length;
+      const lines = textarea.value.split('\n').length;
       const lineNumbers = document.getElementById('lineNumbers');
       let lineNumberText = '';
       for (let i = 1; i <= lines; i++) {
-        lineNumberText += i + '\\n';
+        lineNumberText += i + '\n';
       }
       lineNumbers.textContent = lineNumberText;
     }

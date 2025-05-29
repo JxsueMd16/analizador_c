@@ -15,6 +15,10 @@ app.set('views', path.join(__dirname, 'views'));
 const analyzerRoutes = require('./routes/analyzer');
 app.use('/', analyzerRoutes);
 
+const parserRoutes = require('./routes/parser');
+app.use('/', parserRoutes);
+
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

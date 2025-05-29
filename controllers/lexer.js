@@ -8,7 +8,7 @@ exports.analizar = (codigo) => {
 
   // Regex  - patrones ordenados por especificidad
   // IMPORTANTE: Los patrones más específicos van PRIMERO
-  const regex = /(=<|=>|=!|!>|!<|<>)|(#\w+)|(\"(?:[^"\\]|\\.)*\"?)|(\"[^"]*$)|('(?:[^'\\]|\\.)*'?)|('$)|(<.*?>)|(\/\/.*)|\/\*[\s\S]*?\*\/|(\/\*[\s\S]*$)|(0x[0-9a-fA-F]*[g-zG-Z]+[0-9a-fA-F]*)|(\d+\.\d*\.[\d.]*)|(\d*\.\d+\.[\d.]*)|(\d+\.\d+e[+-]?\d+)|(\d+e[+-]?\d+)|(\d+\.\d+e[+-]?$)|(\d+e[+-]?$)|(\d+e$)|(0x[0-9a-fA-F]+)|(\d+\.\d+)|(\d+\.)|([0-9]+[a-zA-Z_][a-zA-Z0-9_]*)|([a-zA-Z_][a-zA-Z0-9_]*[$@#%^&`~\\]+[a-zA-Z0-9_]*)|([=!<>]=?|&&|\|\||\+\+|--|[+\-*/%=<>!])|(\d+)|([a-zA-Z_][a-zA-Z0-9_]*)|([;:,(){}[\]])|(\S)/g;
+  const regex = /(=<|=>|=!|!>|!<|<>)|(#\w+)|(\"(?:[^"\\]|\\.)*\"?)|(\"[^"]*$)|('(?:[^'\\]|\\.)*'?)|('$)|(<.*?>)|(\/\/.*)|\/\*[\s\S]*?\*\/|(\/\*[\s\S]*$)|(0x[0-9a-fA-F]*[g-zG-Z]+[0-9a-fA-F]*)|(\d+\.\d*\.[\d.]*)|(\d*\.\d+\.[\d.]*)|(\d+\.\d+e[+-]?\d+)|(\d+e[+-]?\d+)|(\d+\.\d+e[+-]?$)|(\d+e[+-]?$)|(\d+e$)|(0x[0-9a-fA-F]+)|(\d+\.\d+)|(\d+\.)|([0-9]+[a-zA-Z_][a-zA-Z0-9_]*)|([a-zA-Z_][a-zA-Z0-9_]*[$@#%^&`~\\]+[a-zA-Z0-9_]*)|([=!<>]=?|&&|\|\||\+\+|--|[+\-*/%=<>!&])|(\d+)|([a-zA-Z_][a-zA-Z0-9_]*)|([;:,(){}[\]])|(\S)/g;
 
   let match;
   const tablaTokens = [];
@@ -135,8 +135,8 @@ exports.analizar = (codigo) => {
     else if (/^=$/.test(lexema)) {
       categoria = 'Operador de asignación';
     }
-    // Operadores aritméticos
-    else if (/^[+\-*/%]$/.test(lexema)) {
+    // Operadores aritméticos (incluyendo % y &)
+    else if (/^[+\-*/%&]$/.test(lexema)) {
       categoria = 'Operador aritmético';
     }
     // Delimitadores
@@ -180,8 +180,8 @@ exports.analizar = (codigo) => {
         categoria = 'Identificador';
       }
     }
-    // Caracteres no reconocidos específicos
-    else if (/^[@#$%^&`~\\]$/.test(lexema)) {
+    // Caracteres no reconocidos específicos (removido & ya que es operador válido)
+    else if (/^[@#$^`~\\]$/.test(lexema)) {
       categoria = 'Error léxico';
     }
     // Espacios en blanco (ignorar)
