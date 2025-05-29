@@ -32,30 +32,30 @@ class Parser {
   }
 
   Preprocesador() {
-  const nodo = new NodoArbol("Preprocesador");
-  const token = this.match('Preprocesador');
-  if (token) nodo.agregarHijo(new NodoArbol(token.lexema));
+    const nodo = new NodoArbol("Preprocesador");
+    const token = this.match('Preprocesador');
+    if (token) nodo.agregarHijo(new NodoArbol(token.lexema));
 
-  // Aquí creamos el nodo intermedio "Biblioteca"
-  const nodoBiblioteca = new NodoArbol("Biblioteca");
-  const archivo = this.matchUnaDe(['Archivo de biblioteca', 'Cadena de texto']);
-  if (archivo) {
-    nodoBiblioteca.agregarHijo(new NodoArbol(archivo.lexema));
-    nodo.agregarHijo(nodoBiblioteca); // Lo añadimos como hijo del Preprocesador
-  } else {
-    this.error("Falta archivo de biblioteca en #include");
+    const nodoBiblioteca = new NodoArbol("Biblioteca");
+    const archivo = this.matchUnaDe(['Archivo de biblioteca', 'Cadena de texto']);
+    if (archivo) {
+      nodoBiblioteca.agregarHijo(new NodoArbol(archivo.lexema));
+      nodo.agregarHijo(nodoBiblioteca);
+    } else {
+      this.error("Falta archivo de biblioteca en #include");
+    }
+
+    return nodo;
   }
-
-  return nodo;
-}
-
 
   DeclaracionOFuncion() {
     const nodo = new NodoArbol("Declaración/Función");
     const tipo = this.match('Palabra clave');
     if (tipo) nodo.agregarHijo(new NodoArbol(tipo.lexema));
+    
     const id = this.match('Identificador');
     if (id) nodo.agregarHijo(new NodoArbol(id.lexema));
+    
     if (this.verLexema('(')) {
       nodo.agregarHijo(this.Funcion());
     } else {
@@ -77,12 +77,20 @@ class Parser {
 
   Parametros(nodoPadre) {
     const nodo = new NodoArbol("Parámetros");
+    
     while (this.verToken() && this.verToken().lexema !== ')') {
+      // Crear un nodo para cada parámetro individual
+      const nodoParametro = new NodoArbol("Parámetro");
+      
       const tipo = this.match('Palabra clave');
       if (!tipo) break;
-      nodo.agregarHijo(new NodoArbol(tipo.lexema));
+      nodoParametro.agregarHijo(new NodoArbol(tipo.lexema));
+      
       const id = this.match('Identificador');
-      if (id) nodo.agregarHijo(new NodoArbol(id.lexema));
+      if (id) nodoParametro.agregarHijo(new NodoArbol(id.lexema));
+      
+      nodo.agregarHijo(nodoParametro);
+      
       if (this.verLexema(',')) this.matchLexema(',');
       else break;
     }
@@ -112,28 +120,108 @@ class Parser {
     }
   }
 
+  // MEJORADA: Estructura más clara para declaraciones
   DeclaracionVariable() {
     const nodo = new NodoArbol("Declaración");
     const tipo = this.match('Palabra clave');
-    nodo.agregarHijo(new NodoArbol(tipo.lexema));
+    
+    // Crear nodo tipo como primer hijo
+    const nodoTipo = new NodoArbol("Tipo");
+    nodoTipo.agregarHijo(new NodoArbol(tipo.lexema));
+    nodo.agregarHijo(nodoTipo);
+    
+    // Procesar variables (pueden ser múltiples separadas por comas)
+    const nodoVariables = new NodoArbol("Variables");
+    
     while (this.verToken() && this.verToken().lexema !== ';') {
-      nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
-      if (this.verLexema(',')) this.matchLexema(',');
+      const token = this.verToken();
+      
+      if (token.categoria === 'Identificador') {
+        const nombreVar = this.siguiente().lexema;
+        
+        // Verificar si hay inicialización
+        if (this.verLexema('=')) {
+          const nodoAsignacion = new NodoArbol("Inicialización");
+          nodoAsignacion.agregarHijo(new NodoArbol(nombreVar));
+          nodoAsignacion.agregarHijo(new NodoArbol(this.siguiente().lexema)); // el '='
+          
+          // Agregar el valor de inicialización
+          if (this.verToken() && this.verToken().lexema !== ',' && this.verToken().lexema !== ';') {
+            nodoAsignacion.agregarHijo(new NodoArbol(this.siguiente().lexema));
+          }
+          
+          nodoVariables.agregarHijo(nodoAsignacion);
+        } else {
+          // Solo declaración sin inicialización
+          nodoVariables.agregarHijo(new NodoArbol(nombreVar));
+        }
+      } else {
+        this.siguiente(); // saltar tokens no reconocidos
+      }
+      
+      if (this.verLexema(',')) {
+        this.matchLexema(',');
+      } else {
+        break;
+      }
     }
+    
+    nodo.agregarHijo(nodoVariables);
     this.matchLexema(';');
     return nodo;
   }
 
+  // MEJORADA: Estructura más clara para asignaciones
   Asignacion() {
     const nodo = new NodoArbol("Asignación");
-    nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+    
+    // Variable que se asigna
+    const variable = this.siguiente().lexema;
+    nodo.agregarHijo(new NodoArbol(variable));
+    
+    // Operador de asignación
     if (this.verLexema('=') || this.verCategoria('Operador aritmético') || this.verCategoria('Operador de incremento-decremento')) {
-      nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+      const operador = this.siguiente().lexema;
+      nodo.agregarHijo(new NodoArbol(operador));
+      
+      // Expresión del lado derecho
+      if (this.verToken() && this.verToken().lexema !== ';') {
+        const nodoExpresion = new NodoArbol("Valor");
+        while (this.verToken() && this.verToken().lexema !== ';') {
+          nodoExpresion.agregarHijo(new NodoArbol(this.siguiente().lexema));
+        }
+        nodo.agregarHijo(nodoExpresion);
+      }
     }
-    while (this.verToken() && this.verToken().lexema !== ';') {
-      nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
-    }
+    
     this.matchLexema(';');
+    return nodo;
+  }
+
+  // MEJORADA: Estructura más clara para expresiones
+  Expresion() {
+    const nodo = new NodoArbol("Expresión");
+    const tokens = [];
+    
+    // Recopilar todos los tokens de la expresión
+    while (this.verToken() && 
+           this.verToken().lexema !== ';' && 
+           this.verToken().lexema !== ')' && 
+           this.verToken().lexema !== '{' &&
+           this.verToken().lexema !== ',') {
+      tokens.push(this.siguiente());
+    }
+    
+    // Si es una expresión simple (un solo token), no crear estructura compleja
+    if (tokens.length === 1) {
+      nodo.agregarHijo(new NodoArbol(tokens[0].lexema));
+    } else if (tokens.length > 1) {
+      // Para expresiones más complejas, mantener la estructura actual
+      tokens.forEach(token => {
+        nodo.agregarHijo(new NodoArbol(token.lexema));
+      });
+    }
+    
     return nodo;
   }
 
@@ -141,11 +229,23 @@ class Parser {
     const nodo = new NodoArbol("If");
     this.match('Palabra clave');
     this.matchLexema('(');
-    nodo.agregarHijo(this.Expresion());
+    
+    // Crear nodo específico para la condición
+    const nodoCondicion = new NodoArbol("Condición");
+    const expresion = this.Expresion();
+    nodoCondicion.agregarHijo(expresion);
+    nodo.agregarHijo(nodoCondicion);
+    
     this.matchLexema(')');
     this.matchLexema('{');
-    this.CuerpoFuncion(nodo);
+    
+    // Crear nodo específico para el cuerpo del if
+    const nodoCuerpo = new NodoArbol("Cuerpo If");
+    this.CuerpoFuncion(nodoCuerpo);
+    nodo.agregarHijo(nodoCuerpo);
+    
     this.matchLexema('}');
+    
     if (this.verLexema('else')) nodo.agregarHijo(this.Else());
     return nodo;
   }
@@ -154,7 +254,11 @@ class Parser {
     const nodo = new NodoArbol("Else");
     this.match('Palabra clave');
     this.matchLexema('{');
-    this.CuerpoFuncion(nodo);
+    
+    const nodoCuerpo = new NodoArbol("Cuerpo Else");
+    this.CuerpoFuncion(nodoCuerpo);
+    nodo.agregarHijo(nodoCuerpo);
+    
     this.matchLexema('}');
     return nodo;
   }
@@ -163,13 +267,29 @@ class Parser {
     const nodo = new NodoArbol("For");
     this.match('Palabra clave');
     this.matchLexema('(');
-    nodo.agregarHijo(this.Asignacion());
-    nodo.agregarHijo(this.Expresion());
+    
+    // Estructura más clara para el for
+    const nodoInicializacion = new NodoArbol("Inicialización");
+    nodoInicializacion.agregarHijo(this.Asignacion());
+    nodo.agregarHijo(nodoInicializacion);
+    
+    const nodoCondicion = new NodoArbol("Condición");
+    nodoCondicion.agregarHijo(this.Expresion());
+    nodo.agregarHijo(nodoCondicion);
+    
     this.matchLexema(';');
-    nodo.agregarHijo(this.Expresion());
+    
+    const nodoIncremento = new NodoArbol("Incremento");
+    nodoIncremento.agregarHijo(this.Expresion());
+    nodo.agregarHijo(nodoIncremento);
+    
     this.matchLexema(')');
     this.matchLexema('{');
-    this.CuerpoFuncion(nodo);
+    
+    const nodoCuerpo = new NodoArbol("Cuerpo For");
+    this.CuerpoFuncion(nodoCuerpo);
+    nodo.agregarHijo(nodoCuerpo);
+    
     this.matchLexema('}');
     return nodo;
   }
@@ -178,10 +298,18 @@ class Parser {
     const nodo = new NodoArbol("While");
     this.match('Palabra clave');
     this.matchLexema('(');
-    nodo.agregarHijo(this.Expresion());
+    
+    const nodoCondicion = new NodoArbol("Condición");
+    nodoCondicion.agregarHijo(this.Expresion());
+    nodo.agregarHijo(nodoCondicion);
+    
     this.matchLexema(')');
     this.matchLexema('{');
-    this.CuerpoFuncion(nodo);
+    
+    const nodoCuerpo = new NodoArbol("Cuerpo While");
+    this.CuerpoFuncion(nodoCuerpo);
+    nodo.agregarHijo(nodoCuerpo);
+    
     this.matchLexema('}');
     return nodo;
   }
@@ -190,11 +318,19 @@ class Parser {
     const nodo = new NodoArbol("DoWhile");
     this.match('Palabra clave');
     this.matchLexema('{');
-    this.CuerpoFuncion(nodo);
+    
+    const nodoCuerpo = new NodoArbol("Cuerpo Do");
+    this.CuerpoFuncion(nodoCuerpo);
+    nodo.agregarHijo(nodoCuerpo);
+    
     this.matchLexema('}');
     this.match('Palabra clave'); // while
     this.matchLexema('(');
-    nodo.agregarHijo(this.Expresion());
+    
+    const nodoCondicion = new NodoArbol("Condición");
+    nodoCondicion.agregarHijo(this.Expresion());
+    nodo.agregarHijo(nodoCondicion);
+    
     this.matchLexema(')');
     this.matchLexema(';');
     return nodo;
@@ -204,16 +340,24 @@ class Parser {
     const nodo = new NodoArbol("Switch");
     this.match('Palabra clave');
     this.matchLexema('(');
-    nodo.agregarHijo(this.Expresion());
+    
+    const nodoExpresion = new NodoArbol("Expresión Switch");
+    nodoExpresion.agregarHijo(this.Expresion());
+    nodo.agregarHijo(nodoExpresion);
+    
     this.matchLexema(')');
     this.matchLexema('{');
+    
+    const nodoCasos = new NodoArbol("Casos");
     while (this.verToken() && this.verToken().lexema !== '}') {
       const t = this.verToken();
-      if (t.lexema === 'case') nodo.agregarHijo(this.Case());
-      else if (t.lexema === 'default') nodo.agregarHijo(this.Default());
-      else if (t.lexema === 'break') nodo.agregarHijo(this.InstruccionSimple());
+      if (t.lexema === 'case') nodoCasos.agregarHijo(this.Case());
+      else if (t.lexema === 'default') nodoCasos.agregarHijo(this.Default());
+      else if (t.lexema === 'break') nodoCasos.agregarHijo(this.InstruccionSimple());
       else this.siguiente();
     }
+    nodo.agregarHijo(nodoCasos);
+    
     this.matchLexema('}');
     return nodo;
   }
@@ -221,7 +365,11 @@ class Parser {
   Case() {
     const nodo = new NodoArbol("Case");
     this.match('Palabra clave');
-    nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+    
+    const nodoValor = new NodoArbol("Valor");
+    nodoValor.agregarHijo(new NodoArbol(this.siguiente().lexema));
+    nodo.agregarHijo(nodoValor);
+    
     this.matchLexema(':');
     return nodo;
   }
@@ -233,13 +381,25 @@ class Parser {
     return nodo;
   }
 
+  // MEJORADA: Estructura más clara para llamadas a función
   LlamadaGenerica() {
     const nodo = new NodoArbol("Llamada a Función");
-    nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+    
+    const nombreFuncion = this.siguiente().lexema;
+    nodo.agregarHijo(new NodoArbol(nombreFuncion));
+    
     this.matchLexema('(');
+    
+    const nodoParametros = new NodoArbol("Argumentos");
     while (this.verToken() && this.verToken().lexema !== ')') {
-      nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+      nodoParametros.agregarHijo(new NodoArbol(this.siguiente().lexema));
+      if (this.verLexema(',')) this.matchLexema(',');
     }
+    
+    if (nodoParametros.hijos.length > 0) {
+      nodo.agregarHijo(nodoParametros);
+    }
+    
     this.matchLexema(')');
     this.matchLexema(';');
     return nodo;
@@ -247,11 +407,22 @@ class Parser {
 
   LlamadaIO() {
     const nodo = new NodoArbol("Entrada/Salida");
-    nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+    
+    const nombreFuncion = this.siguiente().lexema;
+    nodo.agregarHijo(new NodoArbol(nombreFuncion));
+    
     this.matchLexema('(');
+    
+    const nodoParametros = new NodoArbol("Parámetros");
     while (this.verToken() && this.verToken().lexema !== ')') {
-      nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+      nodoParametros.agregarHijo(new NodoArbol(this.siguiente().lexema));
+      if (this.verLexema(',')) this.matchLexema(',');
     }
+    
+    if (nodoParametros.hijos.length > 0) {
+      nodo.agregarHijo(nodoParametros);
+    }
+    
     this.matchLexema(')');
     this.matchLexema(';');
     return nodo;
@@ -260,16 +431,14 @@ class Parser {
   Return() {
     const nodo = new NodoArbol("Return");
     this.match('Palabra clave');
-    if (!this.verLexema(';')) nodo.agregarHijo(this.Expresion());
-    this.matchLexema(';');
-    return nodo;
-  }
-
-  Expresion() {
-    const nodo = new NodoArbol("Expresión");
-    while (this.verToken() && this.verToken().lexema !== ';' && this.verToken().lexema !== ')' && this.verToken().lexema !== '{') {
-      nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+    
+    if (!this.verLexema(';')) {
+      const nodoValor = new NodoArbol("Valor de Retorno");
+      nodoValor.agregarHijo(this.Expresion());
+      nodo.agregarHijo(nodoValor);
     }
+    
+    this.matchLexema(';');
     return nodo;
   }
 
@@ -279,40 +448,46 @@ class Parser {
     return nodo;
   }
 
-  // --- Utilidades
+  // --- Utilidades (sin cambios)
   verToken() {
     return this.tokens[this.index];
   }
+  
   siguiente() {
     return this.tokens[this.index++];
   }
+  
   verLexema(lexema) {
     return this.verToken() && this.verToken().lexema === lexema;
   }
+  
   verCategoria(cat) {
     return this.verToken() && this.verToken().categoria === cat;
   }
+  
   match(categoria) {
     const token = this.verToken();
     if (token && token.categoria === categoria) return this.siguiente();
     this.error(`Se esperaba ${categoria}, se encontró ${token ? token.lexema : 'EOF'}`);
     return null;
   }
+  
   matchLexema(lexema) {
     const token = this.verToken();
     if (token && token.lexema === lexema) return this.siguiente();
     this.error(`Se esperaba '${lexema}', se encontró ${token ? token.lexema : 'EOF'}`);
     return null;
   }
+  
   matchUnaDe(categorias) {
-  const token = this.verToken();
-  if (token && categorias.includes(token.categoria)) {
-    return this.siguiente();
-  } else {
-    this.error(`Se esperaba una de las categorías: ${categorias.join(' o ')}, se encontró ${token ? token.lexema : 'EOF'}`);
-    return null;
+    const token = this.verToken();
+    if (token && categorias.includes(token.categoria)) {
+      return this.siguiente();
+    } else {
+      this.error(`Se esperaba una de las categorías: ${categorias.join(' o ')}, se encontró ${token ? token.lexema : 'EOF'}`);
+      return null;
+    }
   }
-}
 
   error(msg) {
     this.errores.push(`Error: ${msg} (línea ${this.verToken() ? this.verToken().linea : 'EOF'})`);
