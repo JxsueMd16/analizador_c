@@ -173,6 +173,20 @@
       }
       lineNumbers.textContent = lineNumberText;
     }
+
+     const textarea = document.getElementById('codigo');
+
+      // Al cargar la página, restaurar el contenido guardado
+      window.addEventListener('load', () => {
+        const guardado = localStorage.getItem('codigo');
+        if (guardado) textarea.value = guardado;
+        updateLineNumbers(textarea); // Para que también actualice las líneas
+      });
+
+      // Cada vez que el usuario escriba, guardar en localStorage
+      textarea.addEventListener('input', () => {
+        localStorage.setItem('codigo', textarea.value);
+      });
   </script>
 </body>
 </html>

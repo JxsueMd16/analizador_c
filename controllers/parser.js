@@ -441,10 +441,39 @@ class Parser {
     const nodoCasos = new NodoArbol("Casos");
     while (this.verToken() && this.verToken().lexema !== '}') {
       const t = this.verToken();
-      if (t.lexema === 'case') nodoCasos.agregarHijo(this.Case());
-      else if (t.lexema === 'default') nodoCasos.agregarHijo(this.Default());
-      else if (t.lexema === 'break') nodoCasos.agregarHijo(this.InstruccionSimple());
-      else this.siguiente();
+      if (t.lexema === 'case') {
+        nodoCasos.agregarHijo(this.Case());
+      } else if (t.lexema === 'default') {
+        nodoCasos.agregarHijo(this.Default());
+      } else {
+        // Procesar las instrucciones dentro de cada caso
+        if (t.lexema === 'break') {
+          nodoCasos.agregarHijo(this.InstruccionSimple());
+        } else if (['printf', 'scanf', 'getch'].includes(t.lexema)) {
+          nodoCasos.agregarHijo(this.LlamadaIO());
+        } else if (t.categoria === 'Identificador') {
+          const siguiente = this.tokens[this.index + 1];
+          if (siguiente && siguiente.lexema === '(') {
+            nodoCasos.agregarHijo(this.LlamadaGenerica());
+          } else {
+            nodoCasos.agregarHijo(this.Asignacion());
+          }
+        } else if (t.categoria === 'Palabra clave' && ['int', 'float', 'char'].includes(t.lexema)) {
+          nodoCasos.agregarHijo(this.DeclaracionVariable());
+        } else if (t.lexema === 'if') {
+          nodoCasos.agregarHijo(this.If());
+        } else if (t.lexema === 'for') {
+          nodoCasos.agregarHijo(this.For());
+        } else if (t.lexema === 'while') {
+          nodoCasos.agregarHijo(this.While());
+        } else if (t.lexema === 'return') {
+          nodoCasos.agregarHijo(this.Return());
+        } else {
+          // Si no reconoce la instrucción, la consume para evitar bucle infinito
+          this.error(`Instrucción no reconocida en switch: ${t.lexema}`);
+          this.siguiente();
+        }
+      }
     }
     nodo.agregarHijo(nodoCasos);
     
@@ -454,20 +483,103 @@ class Parser {
 
   Case() {
     const nodo = new NodoArbol("Case");
-    this.match('Palabra clave');
+    this.match('Palabra clave'); // consume 'case'
     
     const nodoValor = new NodoArbol("Valor");
-    nodoValor.agregarHijo(new NodoArbol(this.siguiente().lexema));
+    if (this.verToken()) {
+      nodoValor.agregarHijo(new NodoArbol(this.siguiente().lexema));
+    }
     nodo.agregarHijo(nodoValor);
     
     this.matchLexema(':');
+    
+    // Agregar las instrucciones que siguen al case
+    const nodoCuerpo = new NodoArbol("Cuerpo Case");
+    while (this.verToken() && 
+           this.verToken().lexema !== 'case' && 
+           this.verToken().lexema !== 'default' && 
+           this.verToken().lexema !== '}') {
+      
+      const t = this.verToken();
+      if (t.lexema === 'break') {
+        nodoCuerpo.agregarHijo(this.InstruccionSimple());
+        break; // Salir después del break
+      } else if (['printf', 'scanf', 'getch'].includes(t.lexema)) {
+        nodoCuerpo.agregarHijo(this.LlamadaIO());
+      } else if (t.categoria === 'Identificador') {
+        const siguiente = this.tokens[this.index + 1];
+        if (siguiente && siguiente.lexema === '(') {
+          nodoCuerpo.agregarHijo(this.LlamadaGenerica());
+        } else {
+          nodoCuerpo.agregarHijo(this.Asignacion());
+        }
+      } else if (t.categoria === 'Palabra clave' && ['int', 'float', 'char'].includes(t.lexema)) {
+        nodoCuerpo.agregarHijo(this.DeclaracionVariable());
+      } else if (t.lexema === 'if') {
+        nodoCuerpo.agregarHijo(this.If());
+      } else if (t.lexema === 'for') {
+        nodoCuerpo.agregarHijo(this.For());
+      } else if (t.lexema === 'while') {
+        nodoCuerpo.agregarHijo(this.While());
+      } else if (t.lexema === 'return') {
+        nodoCuerpo.agregarHijo(this.Return());
+      } else {
+        this.error(`Instrucción no reconocida en case: ${t.lexema}`);
+        this.siguiente();
+      }
+    }
+    
+    if (nodoCuerpo.hijos.length > 0) {
+      nodo.agregarHijo(nodoCuerpo);
+    }
+    
     return nodo;
   }
 
   Default() {
     const nodo = new NodoArbol("Default");
-    this.match('Palabra clave');
+    this.match('Palabra clave'); // consume 'default'
     this.matchLexema(':');
+    
+    // Agregar las instrucciones que siguen al default
+    const nodoCuerpo = new NodoArbol("Cuerpo Default");
+    while (this.verToken() && 
+           this.verToken().lexema !== 'case' && 
+           this.verToken().lexema !== '}') {
+      
+      const t = this.verToken();
+      if (t.lexema === 'break') {
+        nodoCuerpo.agregarHijo(this.InstruccionSimple());
+        break; // Salir después del break
+      } else if (['printf', 'scanf', 'getch'].includes(t.lexema)) {
+        nodoCuerpo.agregarHijo(this.LlamadaIO());
+      } else if (t.categoria === 'Identificador') {
+        const siguiente = this.tokens[this.index + 1];
+        if (siguiente && siguiente.lexema === '(') {
+          nodoCuerpo.agregarHijo(this.LlamadaGenerica());
+        } else {
+          nodoCuerpo.agregarHijo(this.Asignacion());
+        }
+      } else if (t.categoria === 'Palabra clave' && ['int', 'float', 'char'].includes(t.lexema)) {
+        nodoCuerpo.agregarHijo(this.DeclaracionVariable());
+      } else if (t.lexema === 'if') {
+        nodoCuerpo.agregarHijo(this.If());
+      } else if (t.lexema === 'for') {
+        nodoCuerpo.agregarHijo(this.For());
+      } else if (t.lexema === 'while') {
+        nodoCuerpo.agregarHijo(this.While());
+      } else if (t.lexema === 'return') {
+        nodoCuerpo.agregarHijo(this.Return());
+      } else {
+        this.error(`Instrucción no reconocida en default: ${t.lexema}`);
+        this.siguiente();
+      }
+    }
+    
+    if (nodoCuerpo.hijos.length > 0) {
+      nodo.agregarHijo(nodoCuerpo);
+    }
+    
     return nodo;
   }
 

@@ -23,8 +23,8 @@ router.post('/analizar-sintactico', (req, res) => {
   const tokens = resultadoLexer.tokens; // Extraer el array de tokens
   console.log('TOKENS PARA EL PARSER:', tokens);
   const { arbol, erroresSintacticos } = parser.analizarTokens(tokens);
-console.log('ÁRBOL PARA TREANT:', JSON.stringify(arbol, null, 2)); // 👈 Agrega esto
-res.render('index', { resultado: null, arbol, erroresSintacticos });
+  console.log('ÁRBOL PARA TREANT:', JSON.stringify(arbol, null, 2));
+  res.render('index', { resultado: null, arbol, erroresSintacticos });
 
 });
 
