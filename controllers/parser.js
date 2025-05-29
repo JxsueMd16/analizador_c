@@ -32,14 +32,23 @@ class Parser {
   }
 
   Preprocesador() {
-    const nodo = new NodoArbol("Preprocesador");
-    const token = this.match('Preprocesador');
-    if (token) nodo.agregarHijo(new NodoArbol(token.lexema));
-    const archivo = this.match('Archivo de biblioteca');
-    if (archivo) nodo.agregarHijo(new NodoArbol(archivo.lexema));
-    else this.error("Falta archivo de biblioteca en #include");
-    return nodo;
+  const nodo = new NodoArbol("Preprocesador");
+  const token = this.match('Preprocesador');
+  if (token) nodo.agregarHijo(new NodoArbol(token.lexema));
+
+  // Aquí creamos el nodo intermedio "Biblioteca"
+  const nodoBiblioteca = new NodoArbol("Biblioteca");
+  const archivo = this.matchUnaDe(['Archivo de biblioteca', 'Cadena de texto']);
+  if (archivo) {
+    nodoBiblioteca.agregarHijo(new NodoArbol(archivo.lexema));
+    nodo.agregarHijo(nodoBiblioteca); // Lo añadimos como hijo del Preprocesador
+  } else {
+    this.error("Falta archivo de biblioteca en #include");
   }
+
+  return nodo;
+}
+
 
   DeclaracionOFuncion() {
     const nodo = new NodoArbol("Declaración/Función");
@@ -295,6 +304,16 @@ class Parser {
     this.error(`Se esperaba '${lexema}', se encontró ${token ? token.lexema : 'EOF'}`);
     return null;
   }
+  matchUnaDe(categorias) {
+  const token = this.verToken();
+  if (token && categorias.includes(token.categoria)) {
+    return this.siguiente();
+  } else {
+    this.error(`Se esperaba una de las categorías: ${categorias.join(' o ')}, se encontró ${token ? token.lexema : 'EOF'}`);
+    return null;
+  }
+}
+
   error(msg) {
     this.errores.push(`Error: ${msg} (línea ${this.verToken() ? this.verToken().linea : 'EOF'})`);
   }
