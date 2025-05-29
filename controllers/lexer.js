@@ -3,7 +3,7 @@ const Token = require('../models/token');
 exports.analizar = (codigo) => {
   const palabrasClave = [
     'int', 'double', 'float', 'char', 'if', 'else', 'while', 'return',
-    'switch', 'case', 'break', 'default', 'for', 'do', 'void', 'printf', 'scanf'
+    'switch', 'case', 'break', 'default', 'for', 'do', 'void', 'printf', 'scanf', 'getch'
   ];
 
   // Regex  - patrones ordenados por especificidad
