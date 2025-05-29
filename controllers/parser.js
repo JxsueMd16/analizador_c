@@ -79,7 +79,6 @@ class Parser {
     const nodo = new NodoArbol("Parámetros");
     
     while (this.verToken() && this.verToken().lexema !== ')') {
-      // Crear un nodo para cada parámetro individual
       const nodoParametro = new NodoArbol("Parámetro");
       
       const tipo = this.match('Palabra clave');
@@ -120,17 +119,15 @@ class Parser {
     }
   }
 
-  // MEJORADA: Estructura más clara para declaraciones
+  // Inicialización con operador como nodo padre
   DeclaracionVariable() {
     const nodo = new NodoArbol("Declaración");
     const tipo = this.match('Palabra clave');
     
-    // Crear nodo tipo como primer hijo
     const nodoTipo = new NodoArbol("Tipo");
     nodoTipo.agregarHijo(new NodoArbol(tipo.lexema));
     nodo.agregarHijo(nodoTipo);
     
-    // Procesar variables (pueden ser múltiples separadas por comas)
     const nodoVariables = new NodoArbol("Variables");
     
     while (this.verToken() && this.verToken().lexema !== ';') {
@@ -139,13 +136,15 @@ class Parser {
       if (token.categoria === 'Identificador') {
         const nombreVar = this.siguiente().lexema;
         
-        // Verificar si hay inicialización
+        // Si hay inicialización, el '=' es el nodo padre
         if (this.verLexema('=')) {
-          const nodoAsignacion = new NodoArbol("Inicialización");
-          nodoAsignacion.agregarHijo(new NodoArbol(nombreVar));
-          nodoAsignacion.agregarHijo(new NodoArbol(this.siguiente().lexema)); // el '='
+          const operadorAsignacion = this.siguiente().lexema; // consume el '='
           
-          // Agregar el valor de inicialización
+          // El operador '=' es el nodo padre
+          const nodoAsignacion = new NodoArbol(operadorAsignacion);
+          nodoAsignacion.agregarHijo(new NodoArbol(nombreVar)); // lado izquierdo
+          
+          // Agregar el valor de inicialización (lado derecho)
           if (this.verToken() && this.verToken().lexema !== ',' && this.verToken().lexema !== ';') {
             nodoAsignacion.agregarHijo(new NodoArbol(this.siguiente().lexema));
           }
@@ -156,7 +155,7 @@ class Parser {
           nodoVariables.agregarHijo(new NodoArbol(nombreVar));
         }
       } else {
-        this.siguiente(); // saltar tokens no reconocidos
+        this.siguiente();
       }
       
       if (this.verLexema(',')) {
@@ -171,20 +170,58 @@ class Parser {
     return nodo;
   }
 
-  // MEJORADA: Estructura más clara para asignaciones
+  // Operador de asignación como nodo padre
   Asignacion() {
-    const nodo = new NodoArbol("Asignación");
-    
-    // Variable que se asigna
     const variable = this.siguiente().lexema;
+    
+    // Verificar qué tipo de operador viene después
+    if (this.verLexema('=')) {
+      // Asignación simple: el '=' es el nodo padre
+      const operador = this.siguiente().lexema;
+      const nodoAsignacion = new NodoArbol(operador);
+      
+      nodoAsignacion.agregarHijo(new NodoArbol(variable)); // lado izquierdo
+      
+      // Lado derecho (puede ser una expresión compleja)
+      const valorDerecho = this.ExpresionHastaDelimitador([';']);
+      nodoAsignacion.agregarHijo(valorDerecho);
+      
+      this.matchLexema(';');
+      return nodoAsignacion;
+      
+    } else if (this.verCategoria('Operador aritmético') && 
+               ['+=', '-=', '*=', '/=', '%='].includes(this.verToken().lexema)) {
+      // Asignación compuesta: el operador es el nodo padre
+      const operador = this.siguiente().lexema;
+      const nodoAsignacion = new NodoArbol(operador);
+      
+      nodoAsignacion.agregarHijo(new NodoArbol(variable)); // lado izquierdo
+      
+      // Lado derecho
+      const valorDerecho = this.ExpresionHastaDelimitador([';']);
+      nodoAsignacion.agregarHijo(valorDerecho);
+      
+      this.matchLexema(';');
+      return nodoAsignacion;
+      
+    } else if (this.verCategoria('Operador de incremento-decremento')) {
+      // Operadores unarios: mantener estructura actual (++ y -- no son binarios)
+      const nodo = new NodoArbol("Expresión Unaria");
+      nodo.agregarHijo(new NodoArbol(variable));
+      nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
+      
+      this.matchLexema(';');
+      return nodo;
+    }
+    
+    // Fallback para otros casos
+    const nodo = new NodoArbol("Asignación");
     nodo.agregarHijo(new NodoArbol(variable));
     
-    // Operador de asignación
-    if (this.verLexema('=') || this.verCategoria('Operador aritmético') || this.verCategoria('Operador de incremento-decremento')) {
+    if (this.verToken() && this.verToken().lexema !== ';') {
       const operador = this.siguiente().lexema;
       nodo.agregarHijo(new NodoArbol(operador));
       
-      // Expresión del lado derecho
       if (this.verToken() && this.verToken().lexema !== ';') {
         const nodoExpresion = new NodoArbol("Valor");
         while (this.verToken() && this.verToken().lexema !== ';') {
@@ -198,12 +235,70 @@ class Parser {
     return nodo;
   }
 
-  // MEJORADA: Estructura más clara para expresiones
-  Expresion() {
-    const nodo = new NodoArbol("Expresión");
+  // Función auxiliar para parsear expresiones hasta delimitadores
+  ExpresionHastaDelimitador(delimitadores) {
     const tokens = [];
     
-    // Recopilar todos los tokens de la expresión
+    while (this.verToken() && !delimitadores.includes(this.verToken().lexema)) {
+      tokens.push(this.siguiente());
+    }
+    
+    if (tokens.length === 1) {
+      return new NodoArbol(tokens[0].lexema);
+    } else if (tokens.length > 1) {
+      // Detectar operadores binarios y hacerlos nodos padre
+      return this.construirExpresionBinaria(tokens);
+    }
+    
+    return new NodoArbol("expresión_vacía");
+  }
+
+  // Construir expresiones binarias con operadores como nodos padre
+  construirExpresionBinaria(tokens) {
+    if (tokens.length === 1) {
+      return new NodoArbol(tokens[0].lexema);
+    }
+    
+    // Buscar operadores binarios (precedencia simple: +, -, *, /, %)
+    const operadoresBinarios = ['+', '-', '*', '/', '%', '<', '>', '<=', '>=', '!='];
+    
+    for (let i = 1; i < tokens.length - 1; i++) {
+      const token = tokens[i];
+      if (operadoresBinarios.includes(token.lexema)) {
+        // El operador es el nodo padre
+        const nodoOperador = new NodoArbol(token.lexema);
+        
+        // Lado izquierdo
+        const tokensIzquierda = tokens.slice(0, i);
+        const ladoIzquierdo = tokensIzquierda.length === 1 ? 
+          new NodoArbol(tokensIzquierda[0].lexema) : 
+          this.construirExpresionBinaria(tokensIzquierda);
+        
+        // Lado derecho
+        const tokensDerecha = tokens.slice(i + 1);
+        const ladoDerecho = tokensDerecha.length === 1 ? 
+          new NodoArbol(tokensDerecha[0].lexema) : 
+          this.construirExpresionBinaria(tokensDerecha);
+        
+        nodoOperador.agregarHijo(ladoIzquierdo);
+        nodoOperador.agregarHijo(ladoDerecho);
+        
+        return nodoOperador;
+      }
+    }
+    
+    // Si no hay operadores binarios, crear nodo de expresión simple
+    const nodo = new NodoArbol("Expresión");
+    tokens.forEach(token => {
+      nodo.agregarHijo(new NodoArbol(token.lexema));
+    });
+    return nodo;
+  }
+
+  // Expresiones con mejor estructura
+  Expresion() {
+    const tokens = [];
+    
     while (this.verToken() && 
            this.verToken().lexema !== ';' && 
            this.verToken().lexema !== ')' && 
@@ -212,17 +307,13 @@ class Parser {
       tokens.push(this.siguiente());
     }
     
-    // Si es una expresión simple (un solo token), no crear estructura compleja
     if (tokens.length === 1) {
-      nodo.agregarHijo(new NodoArbol(tokens[0].lexema));
+      return new NodoArbol(tokens[0].lexema);
     } else if (tokens.length > 1) {
-      // Para expresiones más complejas, mantener la estructura actual
-      tokens.forEach(token => {
-        nodo.agregarHijo(new NodoArbol(token.lexema));
-      });
+      return this.construirExpresionBinaria(tokens);
     }
     
-    return nodo;
+    return new NodoArbol("Expresión");
   }
 
   If() {
@@ -230,7 +321,6 @@ class Parser {
     this.match('Palabra clave');
     this.matchLexema('(');
     
-    // Crear nodo específico para la condición
     const nodoCondicion = new NodoArbol("Condición");
     const expresion = this.Expresion();
     nodoCondicion.agregarHijo(expresion);
@@ -239,7 +329,6 @@ class Parser {
     this.matchLexema(')');
     this.matchLexema('{');
     
-    // Crear nodo específico para el cuerpo del if
     const nodoCuerpo = new NodoArbol("Cuerpo If");
     this.CuerpoFuncion(nodoCuerpo);
     nodo.agregarHijo(nodoCuerpo);
@@ -268,9 +357,10 @@ class Parser {
     this.match('Palabra clave');
     this.matchLexema('(');
     
-    // Estructura más clara para el for
+    // Estructura más clara manteniendo asignaciones mejoradas
     const nodoInicializacion = new NodoArbol("Inicialización");
-    nodoInicializacion.agregarHijo(this.Asignacion());
+    const inicializacion = this.Asignacion();
+    nodoInicializacion.agregarHijo(inicializacion);
     nodo.agregarHijo(nodoInicializacion);
     
     const nodoCondicion = new NodoArbol("Condición");
@@ -324,7 +414,7 @@ class Parser {
     nodo.agregarHijo(nodoCuerpo);
     
     this.matchLexema('}');
-    this.match('Palabra clave'); // while
+    this.match('Palabra clave');
     this.matchLexema('(');
     
     const nodoCondicion = new NodoArbol("Condición");
@@ -381,7 +471,6 @@ class Parser {
     return nodo;
   }
 
-  // MEJORADA: Estructura más clara para llamadas a función
   LlamadaGenerica() {
     const nodo = new NodoArbol("Llamada a Función");
     
