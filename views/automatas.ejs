@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatas</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/viz.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/viz.js@2.1.2/full.render.js"></script>
+</head>
+<body>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Automatas de las expresiones </h1>
+        </div>
+        <div class="main-content">
+                <div class="controls">
+            <button type="submit" class="btn" onclick="mostrarCategoria('identificadores-literales')">Identificadores y literales</button>
+            <button type="submit" class="btn" onclick="mostrarCategoria('palabras-clave')">Palabras clave</button>
+            <button type="submit" class="btn" onclick="mostrarCategoria('Operador')">Operadores</button>
+            <button type="submit" class="btn" onclick="mostrarCategoria('delimitador')">Delimitadores</button>
+            <button type="submit" class="btn" onclick="mostrarCategoria('preprocesador')">Directiva de preprocesador</button>
+            <button type="submit" class="btn" onclick="mostrarCategoria('espacio-comentario')">Espacios y comentarios</button>
+          </div>
+
+          
+    <!-- Identificadores y literales -->
+     
+    <div class="categoria identificadores-literales" style="display: none;">
+        <script>
+        </script>
+        <div> 
+            <h2> Identificador</h2>
+                <p><b>Regex:</b> <code>[a-zA-Z_][a-zA-Z0-9_]*</code></p>
+                <div id="AFD_identificador"> </div>
+        </div>
+        <div>
+            <h2>Número entero</h2>
+            <p><b>Regex:</b> <code>[0-9][0-9]*</code></p>
+             <div id="AFD_numeroEntero"></div>
+        </div>
+        <div>
+            <h2>Número decimal</h2>
+            <p><b>Regex:</b> <code>[0-9]+\.[0-9]+</code></p>
+        <div id="AFD_numeroDecimal"></div>
+        </div>
+        <div>
+            <h2>Cadena</h2>
+            <p><b>Regex:</b> <code>"([^"\\]|\\.)*"</code></p>
+            <div id="AFD_cadena"></div>
+        </div>
+        <div>
+            <h2>Caracter</h2>
+            <p><b>Regex:</b> <code>'([^'\\]|\\.)'</code></p>
+            <div id="AFD_caracter"></div>
+        </div>
+    </div>
+
+    <!--palabras clave-->
+    <div class="categoria palabras-clave" style="display: none;">
+        <div>
+            <h2>Palabra clave</h2>
+            <p><b>Regex:</b> <code>int|float|char|void|if|else|while|for|do|switch|case|break|default|return|printf|scanf</code></p>
+             <div id="AFD_palabraClave"></div>
+        </div>
+    </div>
+    <!--operadores-->
+    <div class="categoria Operador" style="display: none;">
+    <div>
+        <h2>Operador asiganación</h2>
+        <p><b>Regex:</b> <code>=|\+=|-=|\*=|/=|%=</code></p>
+        <div id="AFD_operadorAsignacion"></div>
+    </div>
+    <div>
+        <h2>Operador logico</h2>
+        <p><b>Regex:</b> <code>&&|\|\||!</code></p>
+        <div id="AFD_operadorLogico"></div>
+    </div>
+    <div>
+        <h2>Operador racional</h2>
+        <p><b>Regex:</b> <code>==|!=|<=|>=|<|></code></p>
+        <div id="AFD_operadorRacional"></div>
+    </div>
+    <div>
+        <h2>Operador aritmetico</h2>
+        <p><b>Regex:</b> <code>=|\+=|-=|\*=|/=|%=</code></p>
+        <div id="AFD_operadorAritmetico"></div>
+    </div>
+    <div>
+        <h2>Operador unario</h2>
+        <p><b>Regex:</b> <code>\+\+|--|&|\*|!|\+|-</code></p>
+        <div id="AFD_operadorUnario"></div>
+    </div>
+    <div>
+        <h2>Operador acceso</h2>
+        <p><b>Regex:</b> <code>\.|-></code></p>
+        <div id="AFD_operadorAcceso"></div>
+    </div>
+    </div>
+    <!--Delimitadores-->
+    <div class="categoria delimitador" style="display: none;">
+    <div>
+        <h2>Delimitadores</h2>
+        <p><b>Regex:</b> <code>[;:,(){}\[\]]</code></p>
+        <div id="AFD_delimitadores"></div>
+    </div>
+
+    <div>
+        <h2>Parentesis</h2>
+        <p><b>Regex:</b> <code>\(|\)</code></p>
+        <div id="AFD_parentesis"></div>
+    </div><div>
+        <h2>Llaves</h2>
+        <p><b>Regex:</b> <code>\{|\}</code></p>
+        <div id="AFD_llaves"></div>
+    </div><div>
+        <h2>Corchetes</h2>
+        <p><b>Regex:</b> <code>\[|\]</code></p>
+        <div id="AFD_corchetes"></div>
+    </div>
+    </div>
+    <!--Preprocesador-->
+    <div class="categoria preprocesador" style="display: none;">
+            <div>
+                <h2>Directiva preprocesador</h2>
+                <p><b>Regex:</b> <code>#include|#define</code></p>
+                <div id="AFD_directivaPreprocesador"></div>
+            </div>
+            <div>
+                <h2>Biblioteca</h2>
+                <p><b>Regex:</b> <code><[a-zA-Z_][a-zA-Z0-9_]*\.h>|"[a-zA-Z_][a-zA-Z0-9_]*\.h"</code></p>
+                <div id="AFD_biblioteca"></div>
+            </div>
+    </div>
+    <!-- Espacios y comentarios-->
+    <div class="categoria espacio-comentario" style="display: none;">
+        <div>
+            <h2>Espacio blanco</h2>
+            <p><b>Regex:</b> <code>[ \t\n\r]+</code></p>
+            <div id="AFD_espacioBlanco"></div>
+        </div>
+        <div>
+            <h2>Comentario linea</h2>
+            <p><b>Regex:</b> <code>//[^\n]*</code></p>
+            <div id="AFD_comentarioLinea"></div>
+        </div>
+        <div>
+            <h2>Comentario bloque</h2>
+            <p><b>Regex:</b> <code>/\*([^*]|\*+[^*/])*\*+/</code></p>
+            <div id="AFD_comentarioBloque"></div>
+        </div>
+        </div>
+           
+        <script src="/js/automatas.js">
+
+        </script>
+        </div>
+    </div>
+    
+</body>
+</html>

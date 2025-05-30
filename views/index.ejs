@@ -29,6 +29,7 @@
           <div class="controls">
             <button type="submit" class="btn">Analizar Codigo</button>
             <button formaction="/analizar-sintactico" formmethod="POST" class="btn btn-secondary">Analizar Sintactico</button>
+            <a href="/automatas" class="btn btn-secondary">Ver Automatas</a>
             <a href="/documentacion" class="btn btn-secondary">Ver Documentacion</a>
           </div>
         </form>
@@ -125,7 +126,7 @@
           <h3>arbol Sintactico</h3>
           <div id="tree-simple" class="Treant"></div>
           <script>
-            var dataArbol = <%- JSON.stringify(arbol) %>;
+            var dataArbol = "<%- JSON.stringify(arbol) %>" ;
             console.log("Datos del arbol:", dataArbol);
 
             if (!dataArbol || Object.keys(dataArbol).length === 0) {
