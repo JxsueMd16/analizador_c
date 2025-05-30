@@ -26,6 +26,19 @@
             <div class="line-numbers" id="lineNumbers">1</div>
             <textarea name="codigo" id="codigo" rows="15" placeholder="Escribe tu codigo aqui..." oninput="updateLineNumbers(this)"><%= resultado ? resultado.codigoOriginal : '' %></textarea>
           </div>
+
+          <div class="example-buttons">
+            <p><strong>Cargar Ejemplos Rápidos:</strong></p>
+            <div class="btn-group">
+              <button type="button" class="btn-example" onclick="cargarEjemplo('holaMundo')">Hola Mundo</button>
+              <button type="button" class="btn-example" onclick="cargarEjemplo('ifelse')">If / Else</button>
+              <button type="button" class="btn-example" onclick="cargarEjemplo('whileCasos')">While</button>
+              <button type="button" class="btn-example" onclick="cargarEjemplo('forLoop')">For Loop</button>
+              <button type="button" class="btn-example" onclick="cargarEjemplo('codigoCompleto')">Código Completo</button>
+              <button type="button" class="btn-example btn-clear" onclick="limpiarCodigo()">Limpiar</button>
+            </div>
+          </div>
+
           <div class="controls">
             <button type="submit" class="btn">Analizar Codigo</button>
             <button formaction="/analizar-sintactico" formmethod="POST" class="btn btn-secondary">Analizar Sintactico</button>
@@ -188,6 +201,117 @@
       textarea.addEventListener('input', () => {
         localStorage.setItem('codigo', textarea.value);
       });
+
+      function limpiarCodigo() {
+        const textarea = document.getElementById('codigo');
+        textarea.value = '';
+        updateLineNumbers(textarea);
+        localStorage.removeItem('codigo');
+      }
+
+      function cargarEjemplo(tipo) {
+  const ejemplos = {
+    holaMundo: `#include <stdio.h>
+
+int main() {
+    printf("Hola, mundo!\\n");
+    return 0;
+}`,
+    ifelse: `#include <stdio.h>
+
+int main() {
+    int x = 7;
+    int y = 7;
+
+    if (x == y) {
+        printf("Son iguales");
+    } else {
+        printf("Son diferentes");
+    }
+
+    return 0;
+}`,
+    whileCasos: `#include <stdio.h>
+
+int main() {
+    int i = 1;
+    int suma = 0;
+
+    while (i <= 5) {
+        printf("Iteración %d\\n", i);
+        suma += i;
+        i++;
+    }
+
+    printf("Suma final: %d\\n", suma);
+    return 0;
+}`,
+    forLoop: `#include <stdio.h>
+
+int main() {
+    int i;
+
+    for (i = 0; i < 3; i++) {
+        printf("Hola\\n");
+    }
+
+    return 0;
+}`,
+    codigoCompleto: `#include <stdio.h>
+#include <conio.h>
+
+int sumar(int a, int b) {
+    return a + b;
+}
+
+void saludar() {
+    printf("¡Hola, mundo!\\n");
+}
+
+int main() {
+    int opcion, resultado, i = 0;
+
+    printf("Ingrese una opción: ");
+    scanf("%d", &opcion);
+
+    switch (opcion) {
+        case 1:
+            printf("Opción 1 seleccionada\\n");
+            break;
+        case 2:
+            printf("Opción 2 seleccionada\\n");
+            break;
+        default:
+            printf("Opción inválida\\n");
+    }
+
+    resultado = sumar(5, 3);
+    printf("La suma es: %d\\n", resultado);
+
+    for (i = 0; i < 5; i++) {
+        printf("Iteración %d\\n", i);
+    }
+
+    if (resultado > 5) {
+        printf("Resultado mayor a 5\\n");
+    } else {
+        printf("Resultado menor o igual a 5\\n");
+    }
+
+    saludar();
+
+    getch(); // Esperar tecla
+    return 0;
+}`
+  };
+
+  const textarea = document.getElementById('codigo');
+  textarea.value = ejemplos[tipo] || '';
+  updateLineNumbers(textarea);
+  localStorage.setItem('codigo', textarea.value);
+}
+
+
   </script>
 </body>
 </html>

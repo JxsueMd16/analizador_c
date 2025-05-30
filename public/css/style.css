@@ -394,3 +394,51 @@ tr:hover {
   fill: none !important;
 }
 
+.example-buttons {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+}
+
+.example-buttons p {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.example-buttons .btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-example {
+  padding: 8px 12px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-example:hover {
+  background-color: #2980b9;
+}
+
+.btn-example:active {
+  background-color: #1c5f8a;
+}
+.btn-clear {
+  background-color: #e74c3c;
+}
+
+.btn-clear:hover {
+  background-color: #c0392b;
+}
+
+.btn-clear:active {
+  background-color: #922b21;
+}
