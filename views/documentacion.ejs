@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
-  <title>Documentación del Compilador - GIC</title>
+  <title>Documentacion del Compilador - GIC</title>
   <link rel="stylesheet" href="/css/documentacion.css">
 
 </head>
-<body>
-  <h1>Documentación del Compilador</h1>
 
-   <div class="seccion">
+<body>
+  <h1>Documentacion del Compilador</h1>
+
+  <div class="contenedor">
+    <div class="seccion">
       <h2>Expresiones Regulares (ER)</h2>
       <pre>
 // IDENTIFICADORES Y LITERALES
 Identificador:     [a-zA-Z_][a-zA-Z0-9_]*
-Número entero:     [0-9]+
-Número decimal:    [0-9]+\.[0-9]+
+Numero entero:     [0-9]+
+Numero decimal:    [0-9]+\.[0-9]+
 Cadena:           "([^"\\]|\\.)*"
 Caracter:         '([^'\\]|\\.)'
 
@@ -46,13 +49,13 @@ ComentarioLinea:  //[^\n]*
 ComentarioBloque: /\*([^*]|\*+[^*/])*\*+/
       </pre>
     </div>
-
+  </div>
   </div>
 
 
   <div class="contenedor">
     <div class="seccion">
-      <h2>Gramática Incontextual (GIC) Completa</h2>
+      <h2>Gramatica Incontextual (GIC)</h2>
       <pre>
 // ESTRUCTURA PRINCIPAL
 Programa → Preprocesador Declaraciones FuncionPrincipal OtrasFunciones
@@ -115,7 +118,7 @@ OperadorAsignacion → = | += | -= | *= | /= | %=
 
 ExpresionIncDec → Variable ++ | Variable -- | ++ Variable | -- Variable
 
-// EXPRESIONES (Jerarquía de operadores)
+// EXPRESIONES (Jerarquia de operadores)
 Expresion → ExpresionLogica
 ExpresionLogica → ExpresionLogica || ExpresionAnd | ExpresionAnd
 ExpresionAnd → ExpresionAnd && ExpresionIgualdad | ExpresionIgualdad
@@ -240,6 +243,1069 @@ DireccionVariable → & Variable | Variable
       </pre>
     </div>
 
-   
+    <div class="seccion">
+      <h2>Conjuntos PRIMEROS</h2>
+      <pre>
+// ESTRUCTURA PRINCIPAL
+P(Programa) = {#, int, float, char, void}
+P(Preprocesador) = {#, ε}
+P(DirectivaPreprocesador) = {#}
+P(Biblioteca) = {<, "}
+P(Valor) = {num, cadena, id}
+
+// DECLARACIONES
+P(Declaraciones) = {int, float, char, void, ε}
+P(Declaracion) = {int, float, char, void}
+P(DeclaracionVariable) = {int, float, char, void}
+P(DeclaracionArreglo) = {int, float, char, void}
+P(DeclaracionPuntero) = {int, float, char, void}
+P(DeclaracionFuncion) = {int, float, char, void}
+
+// TIPOS
+P(Tipo) = {int, float, char, void}
+P(TipoBasico) = {int, float, char, void}
+P(Modificador) = {*, ε}
+P(TipoRetorno) = {int, float, char, void}
+
+// LISTAS Y VARIABLES
+P(ListaIdentificadores) = {id}
+P(MoreIds) = {,, ε}
+P(InicializacionOpcional) = {=, ε}
+P(ListaValores) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(Variable) = {id, *}
+
+// FUNCIONES
+P(FuncionPrincipal) = {int, float, char, void}
+P(OtrasFunciones) = {int, float, char, void, ε}
+P(Funcion) = {int, float, char, void}
+P(Parametros) = {int, float, char, void, ε}
+P(ListaParametros) = {int, float, char, void}
+P(Parametro) = {int, float, char, void}
+P(CuerpoFuncion) = {int, float, char, void, id, *, ++, --, ;, if, while, for, do, switch, {, ε}
+P(DeclaracionesLocales) = {int, float, char, void, ε}
+
+// SENTENCIAS
+P(ListaSentencias) = {id, *, ++, --, ;, if, while, for, do, switch, {, ε}
+P(Sentencia) = {id, *, ++, --, ;, if, while, for, do, switch, {}
+P(SentenciaSimple) = {id, *, ++, --, ;}
+P(SentenciaControl) = {if, while, for, do, switch}
+P(BloqueCompuesto) = {{}
+
+// ASIGNACIONES
+P(Asignacion) = {id, *}
+P(OperadorAsignacion) = {=, +=, -=, *=, /=, %=}
+P(ExpresionIncDec) = {id, *, ++, --}
+
+// EXPRESIONES
+P(Expresion) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(ExpresionLogica) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(ExpresionAnd) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(ExpresionIgualdad) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(ExpresionRelacional) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(ExpresionAditiva) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(ExpresionMultiplicativa) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(ExpresionUnaria) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(ExpresionPostfija) = {id, num, caracter, cadena, (}
+P(ExpresionPrimaria) = {id, num, caracter, cadena, (}
+
+// OPERADORES
+P(OperadorIgualdad) = {==, !=}
+P(OperadorRelacional) = {<, >, <=, >=}
+P(OperadorAditivo) = {+, -}
+P(OperadorMultiplicativo) = {*, /, %}
+P(OperadorUnario) = {+, -, !, *, &}
+
+// ESTRUCTURAS DE CONTROL
+P(If) = {if}
+P(ElseOpcional) = {else, ε}
+P(While) = {while}
+P(For) = {for}
+P(DoWhile) = {do}
+P(Switch) = {switch}
+P(Condicion) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+
+// ELEMENTOS DE CONTROL
+P(InicializacionFor) = {id, *, int, float, char, void, ε}
+P(CondicionFor) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --, ε}
+P(ActualizacionFor) = {id, *, ++, --, ε}
+P(ListaCasos) = {case, ε}
+P(Caso) = {case}
+P(CasoDefaultOpcional) = {default, ε}
+P(BreakOpcional) = {break, ε}
+
+// FUNCIONES Y LLAMADAS
+P(LlamadaFuncion) = {id}
+P(ArgumentosOpcionales) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --, ε}
+P(ListaArgumentos) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+P(Argumento) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+
+// RETURN
+P(Return) = {return}
+P(ReturnOpcional) = {return, ε}
+
+// FUNCIONES DE E/S
+P(Print) = {printf}
+P(Scanf) = {scanf}
+P(FormatoCadena) = {cadena}
+P(DireccionVariable) = {&, id, *}
+  </pre>
+    </div>
+
+    <div class="seccion">
+      <h2>Conjuntos SIGUIENTES</h2>
+      <pre>
+// ESTRUCTURA PRINCIPAL
+S(Programa) = {$}
+S(Preprocesador) = {int, float, char, void}
+S(DirectivaPreprocesador) = {#, int, float, char, void}
+S(Biblioteca) = {#, int, float, char, void}
+S(Valor) = {#, int, float, char, void}
+
+// DECLARACIONES
+S(Declaraciones) = {int, float, char, void}
+S(Declaracion) = {int, float, char, void, id, *, ++, --, ;, if, while, for, do, switch, {, return, }}
+S(DeclaracionVariable) = {int, float, char, void, id, *, ++, --, ;, if, while, for, do, switch, {, return, }}
+S(DeclaracionArreglo) = {int, float, char, void, id, *, ++, --, ;, if, while, for, do, switch, {, return, }}
+S(DeclaracionPuntero) = {int, float, char, void, id, *, ++, --, ;, if, while, for, do, switch, {, return, }}
+S(DeclaracionFuncion) = {int, float, char, void, id, *, ++, --, ;, if, while, for, do, switch, {, return, }}
+
+// TIPOS
+S(Tipo) = {id, )}
+S(TipoBasico) = {*, id, )}
+S(Modificador) = {id, )}
+S(TipoRetorno) = {main, id}
+
+// LISTAS Y VARIABLES
+S(ListaIdentificadores) = {;}
+S(MoreIds) = {;}
+S(InicializacionOpcional) = {,, ;}
+S(ListaValores) = {}}
+S(Variable) = {=, +=, -=, *=, /=, %=, ++, --, ), ;, ,, ], ||, &&, ==, !=, <, >, <=, >=, +, -, *, /, %}
+
+// FUNCIONES
+S(FuncionPrincipal) = {int, float, char, void, $}
+S(OtrasFunciones) = {$}
+S(Funcion) = {int, float, char, void, $}
+S(Parametros) = {)}
+S(ListaParametros) = {)}
+S(Parametro) = {,, )}
+S(CuerpoFuncion) = {return, }}
+S(DeclaracionesLocales) = {id, *, ++, --, ;, if, while, for, do, switch, {, return}
+
+// SENTENCIAS
+S(ListaSentencias) = {}, case, default, return}
+S(Sentencia) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+S(SentenciaSimple) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+S(SentenciaControl) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+S(BloqueCompuesto) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+
+// ASIGNACIONES
+S(Asignacion) = {;, )}
+S(OperadorAsignacion) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+S(ExpresionIncDec) = {;, )}
+
+// EXPRESIONES
+S(Expresion) = {), ;, ,, ], :}
+S(ExpresionLogica) = {), ;, ,, ], :}
+S(ExpresionAnd) = {||, ), ;, ,, ], :}
+S(ExpresionIgualdad) = {&&, ||, ), ;, ,, ], :}
+S(ExpresionRelacional) = {==, !=, &&, ||, ), ;, ,, ], :}
+S(ExpresionAditiva) = {<, >, <=, >=, ==, !=, &&, ||, ), ;, ,, ], :}
+S(ExpresionMultiplicativa) = {+, -, <, >, <=, >=, ==, !=, &&, ||, ), ;, ,, ], :}
+S(ExpresionUnaria) = {*, /, %, +, -, <, >, <=, >=, ==, !=, &&, ||, ), ;, ,, ], :}
+S(ExpresionPostfija) = {*, /, %, +, -, <, >, <=, >=, ==, !=, &&, ||, ), ;, ,, ], :}
+S(ExpresionPrimaria) = {[, (, ++, --, *, /, %, +, -, <, >, <=, >=, ==, !=, &&, ||, ), ;, ,, ], :}
+
+// OPERADORES
+S(OperadorIgualdad) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+S(OperadorRelacional) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+S(OperadorAditivo) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+S(OperadorMultiplicativo) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+S(OperadorUnario) = {id, num, caracter, cadena, (, +, -, !, *, &, ++, --}
+
+// ESTRUCTURAS DE CONTROL
+S(If) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+S(ElseOpcional) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return}
+S(While) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+S(For) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+S(DoWhile) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+S(Switch) = {id, *, ++, --, ;, if, while, for, do, switch, {, }, case, default, return, else}
+S(Condicion) = {), ;}
+
+// ELEMENTOS DE CONTROL
+S(InicializacionFor) = {;}
+S(CondicionFor) = {;}
+S(ActualizacionFor) = {)}
+S(ListaCasos) = {default, }}
+S(Caso) = {case, default, }}
+S(CasoDefaultOpcional) = {}}
+S(BreakOpcional) = {case, default, }}
+
+// FUNCIONES Y LLAMADAS
+S(LlamadaFuncion) = {;, ), ,, ], ||, &&, ==, !=, <, >, <=, >=, +, -, *, /, %}
+S(ArgumentosOpcionales) = {)}
+S(ListaArgumentos) = {)}
+S(Argumento) = {,, )}
+
+// RETURN
+S(Return) = {}}
+S(ReturnOpcional) = {}}
+
+// FUNCIONES DE E/S
+S(Print) = {;, ), ,, ], ||, &&, ==, !=, <, >, <=, >=, +, -, *, /, %}
+S(Scanf) = {;, ), ,, ], ||, &&, ==, !=, <, >, <=, >=, +, -, *, /, %}
+S(FormatoCadena) = {), ,}
+S(DireccionVariable) = {)}
+  </pre>
+    </div>
+
+    <div class="container">
+      <h1>Tabla LL(1) - Compilador C Simplificado</h1>
+
+      <div class="descripcion">
+        <strong>Proposito Educativo:</strong> Esta tabla representa los elementos mas importantes del analizador
+        sintactico LL(1)
+        para un subconjunto del lenguaje C. Cada celda contiene la produccion a aplicar cuando se encuentra el
+        no terminal (fila) y el terminal (columna).
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th class="no-terminal">No Terminal</th>
+            <th>int/float/char/void</th>
+            <th>main</th>
+            <th>id</th>
+            <th>num</th>
+            <th>(</th>
+            <th>)</th>
+            <th>{</th>
+            <th>}</th>
+            <th>;</th>
+            <th>=</th>
+            <th>+</th>
+            <th>*</th>
+            <th>if</th>
+            <th>while</th>
+            <th>return</th>
+            <th>$</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="no-terminal">Programa</td>
+            <td class="produccion">P → Declaraciones FuncionPrincipal</td>
+            <td class="produccion">P → FuncionPrincipal</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="epsilon">ε</td>
+          </tr>
+          <tr>
+            <td class="no-terminal">Declaraciones</td>
+            <td class="produccion">D → Declaracion Declaraciones</td>
+            <td class="epsilon">ε</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="epsilon">ε</td>
+          </tr>
+          <tr>
+            <td class="no-terminal">FuncionPrincipal</td>
+            <td class="produccion">FP → Tipo main ( ) { Sentencias return }</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+          </tr>
+          <tr>
+            <td class="no-terminal">Declaracion</td>
+            <td class="produccion">D → Tipo id ;</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+          </tr>
+          <tr>
+            <td class="no-terminal">Sentencias</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="produccion">S → Sentencia Sentencias</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="epsilon">ε</td>
+            <td class="produccion">S → Sentencia Sentencias</td>
+            <td class="epsilon">ε</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="produccion">S → Sentencia Sentencias</td>
+            <td class="produccion">S → Sentencia Sentencias</td>
+            <td class="epsilon">ε</td>
+            <td class="vacio">-</td>
+          </tr>
+          <tr>
+            <td class="no-terminal">Sentencia</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="produccion">S → id = Expresion ;</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="produccion">S → { Sentencias }</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="produccion">S → if ( Expresion ) Sentencia</td>
+            <td class="produccion">S → while ( Expresion ) Sentencia</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+          </tr>
+          <tr>
+            <td class="no-terminal">Expresion</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="produccion">E → Termino</td>
+            <td class="produccion">E → Termino</td>
+            <td class="produccion">E → ( Expresion )</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+          </tr>
+          <tr>
+            <td class="no-terminal">Termino</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="produccion">T → Factor</td>
+            <td class="produccion">T → Factor</td>
+            <td class="produccion">T → Factor</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+          </tr>
+          <tr>
+            <td class="no-terminal">Factor</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="produccion">F → id</td>
+            <td class="produccion">F → num</td>
+            <td class="produccion">F → ( Expresion )</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+            <td class="vacio">-</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="leyenda">
+        <h3>Leyenda:</h3>
+        <span class="leyenda-item produccion">Produccion a aplicar</span>
+        <span class="leyenda-item epsilon">ε (cadena vacia)</span>
+        <span class="leyenda-item vacio">- (entrada vacia/error)</span>
+        <p><strong>Nota:</strong> Esta es una tabla LL1 en version simplificada para el entendimiento de la Gramatica
+        </p>
+      </div>
+
+      <div class="analisis-ejemplo">
+        <h2>Ejemplo de Analisis Sintactico LL(1)</h2>
+
+        <div class="codigo-ejemplo">
+          <h3>Codigo de entrada (simplificado):</h3>
+          <pre><code>int main()
+{
+    id = num;
+    return num;
+}</code></pre>
+
+        </div>
+
+        <div class="cadena-tokens">
+          <h3>Cadena de tokens:</h3>
+          <p><strong>Entrada:</strong> int main ( ) { id = num ; return num ; } $</p>
+        </div>
+
+        <div class="tabla-analisis">
+          <h3>Proceso de analisis paso a paso:</h3>
+          <table class="analisis-table">
+            <thead>
+              <tr>
+                <th>Paso</th>
+                <th>Pila</th>
+                <th>Entrada</th>
+                <th>Accion</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>$ Programa</td>
+                <td>int main ( ) { id = num ; return num ; } $</td>
+                <td>P → Declaraciones FuncionPrincipal</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>$ FuncionPrincipal Declaraciones</td>
+                <td>int main ( ) { id = num ; return num ; } $</td>
+                <td>Declaraciones → ε</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>$ FuncionPrincipal</td>
+                <td>int main ( ) { id = num ; return num ; } $</td>
+                <td>FP → Tipo main ( ) { Sentencias return }</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>$ } return Sentencias { ) ( main Tipo</td>
+                <td>int main ( ) { id = num ; return num ; } $</td>
+                <td>Tipo → int (match)</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>$ } return Sentencias { ) ( main</td>
+                <td>main ( ) { id = num ; return num ; } $</td>
+                <td>main (match)</td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>$ } return Sentencias { ) (</td>
+                <td>( ) { id = num ; return num ; } $</td>
+                <td>( (match)</td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>$ } return Sentencias { )</td>
+                <td>) { id = num ; return num ; } $</td>
+                <td>) (match)</td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>$ } return Sentencias {</td>
+                <td>{ id = num ; return num ; } $</td>
+                <td>{ (match)</td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td>$ } return Sentencias</td>
+                <td>id = num ; return num ; } $</td>
+                <td>S → Sentencia Sentencias</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>$ } return Sentencias Sentencia</td>
+                <td>id = num ; return num ; } $</td>
+                <td>S → id = Expresion ;</td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>$ } return Sentencias ; Expresion = id</td>
+                <td>id = num ; return num ; } $</td>
+                <td>id (match)</td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>$ } return Sentencias ; Expresion =</td>
+                <td>= num ; return num ; } $</td>
+                <td>= (match)</td>
+              </tr>
+              <tr>
+                <td>13</td>
+                <td>$ } return Sentencias ; Expresion</td>
+                <td>num ; return num ; } $</td>
+                <td>E → Termino</td>
+              </tr>
+              <tr>
+                <td>14</td>
+                <td>$ } return Sentencias ; Termino</td>
+                <td>num ; return num ; } $</td>
+                <td>T → Factor</td>
+              </tr>
+              <tr>
+                <td>15</td>
+                <td>$ } return Sentencias ; Factor</td>
+                <td>num ; return num ; } $</td>
+                <td>F → num</td>
+              </tr>
+              <tr>
+                <td>16</td>
+                <td>$ } return Sentencias ; num</td>
+                <td>num ; return num ; } $</td>
+                <td>num (match)</td>
+              </tr>
+              <tr>
+                <td>17</td>
+                <td>$ } return Sentencias ;</td>
+                <td>; return num ; } $</td>
+                <td>; (match)</td>
+              </tr>
+              <tr>
+                <td>18</td>
+                <td>$ } return Sentencias</td>
+                <td>return num ; } $</td>
+                <td>Sentencias → ε</td>
+              </tr>
+              <tr>
+                <td>19</td>
+                <td>$ } return</td>
+                <td>return num ; } $</td>
+                <td>return (match)</td>
+              </tr>
+              <tr>
+                <td>20</td>
+                <td>$ }</td>
+                <td>num ; } $</td>
+                <td>num (match) - return implicito</td>
+              </tr>
+              <tr>
+                <td>21</td>
+                <td>$ }</td>
+                <td>; } $</td>
+                <td>; (match) - return implicito</td>
+              </tr>
+              <tr>
+                <td>22</td>
+                <td>$ }</td>
+                <td>} $</td>
+                <td>} (match)</td>
+              </tr>
+              <tr>
+                <td>23</td>
+                <td>$</td>
+                <td>$</td>
+                <td><strong>ACEPTADO</strong> ✓</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="explicacion-analisis">
+          <h3>Explicacion del proceso:</h3>
+          <ul>
+            <li><strong>Pila:</strong> Contiene los simbolos por procesar (se lee de derecha a izquierda)</li>
+            <li><strong>Entrada:</strong> Los tokens restantes por analizar</li>
+            <li><strong>Accion:</strong> La produccion aplicada o si se hace match con un terminal</li>
+            <li><strong>ε (epsilon):</strong> Indica que se aplica una produccion vacia</li>
+            <li><strong>Match:</strong> Se consume un terminal de la entrada y se quita de la pila</li>
+          </ul>
+          <p><strong>Resultado:</strong> El analisis termina exitosamente cuando tanto la pila como la entrada solo
+        contienen el simbolo $.</p>
+    <br>
+    <div class="analisis-ejemplo">
+      <h2>Diagrama de Conway</h2>
+
+    </div>
+    <p>Gramatica de Lenguaje C Simplificado </p>
+    <div class="content">
+      <!-- Programa Principal -->
+      <div class="diagram-section">
+        <div class="diagram-title">Programa</div>
+        <div class="railroad">
+          <div class="rail-element optional">Preprocesador</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">Declaraciones</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">FuncionPrincipal</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">OtrasFunciones</div>
+        </div>
+        <div class="explanation">
+          <strong>Estructura basica:</strong> Un programa C puede tener directivas de preprocesador, declaraciones
+          globales, la funcion main (obligatoria) y otras funciones adicionales.
+        </div>
+      </div>
+
+      <!-- Funcion Principal -->
+      <div class="diagram-section">
+        <div class="diagram-title">Funcion Principal</div>
+        <div class="railroad">
+          <div class="rail-element choice">TipoRetorno</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">main</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">(</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">Parametros</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">)</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">BloqueCompuesto</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">TipoRetorno</div>
+          <div class="branch-line">
+            <div class="railroad">
+              <div class="rail-element choice terminal">int</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice terminal">float</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice terminal">char</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice terminal">void</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Declaraciones -->
+      <div class="diagram-section">
+        <div class="diagram-title">Declaracion de Variables</div>
+        <div class="railroad">
+          <div class="rail-element non-terminal">Tipo</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">id</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">Inicializacion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">;</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Inicializacion (Opcional)</div>
+          <div class="branch-line">
+            <div class="railroad">
+              <div class="rail-element terminal">=</div>
+              <div class="connector">→</div>
+              <div class="rail-element non-terminal">Expresion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sentencias -->
+      <div class="diagram-section">
+        <div class="diagram-title">Sentencias</div>
+        <div class="railroad">
+          <div class="rail-element repetition">Sentencia</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Tipos de Sentencia</div>
+          <div class="branch-line">
+            <div class="railroad">
+              <div class="rail-element choice non-terminal">Asignacion</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice non-terminal">If</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice non-terminal">While</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice non-terminal">For</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice non-terminal">BloqueCompuesto</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expresiones -->
+      <div class="diagram-section">
+        <div class="diagram-title">Expresiones (Jerarquia de Operadores)</div>
+        <div class="railroad">
+          <div class="rail-element non-terminal">ExpresionLogica</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Jerarquia (de mayor a menor precedencia)</div>
+          <div class="branch-line">
+            <div class="railroad" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="rail-element choice">1. ExpresionPrimaria</div>
+                <span style="color: #7f8c8d;">→ id, num, (expresion)</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="rail-element choice">2. ExpresionUnaria</div>
+                <span style="color: #7f8c8d;">→ +, -, !, *, &</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="rail-element choice">3. ExpresionMultiplicativa</div>
+                <span style="color: #7f8c8d;">→ *, /, %</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="rail-element choice">4. ExpresionAditiva</div>
+                <span style="color: #7f8c8d;">→ +, -</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="rail-element choice">5. ExpresionRelacional</div>
+                <span style="color: #7f8c8d;">→ <,>, <=,>=</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="rail-element choice">6. ExpresionLogica</div>
+                <span style="color: #7f8c8d;">→ &&, ||</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estructuras de Control -->
+      <div class="diagram-section">
+        <div class="diagram-title">Estructura If</div>
+        <div class="railroad">
+          <div class="rail-element terminal">if</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">(</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">Condicion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">)</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">Sentencia</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">else Sentencia</div>
+        </div>
+      </div>
+
+      <div class="diagram-section">
+        <div class="diagram-title">Estructura While</div>
+        <div class="railroad">
+          <div class="rail-element terminal">while</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">(</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">Condicion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">)</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">Sentencia</div>
+        </div>
+      </div>
+
+      <!-- Bloque Compuesto -->
+      <div class="diagram-section">
+        <div class="diagram-title">Bloque Compuesto</div>
+        <div class="railroad">
+          <div class="rail-element terminal">{</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">DeclaracionesLocales</div>
+          <div class="connector">→</div>
+          <div class="rail-element repetition">Sentencia</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">}</div>
+        </div>
+        <div class="explanation">
+          <strong>Bloque Compuesto:</strong> Agrupa multiples sentencias entre llaves. Puede contener declaraciones
+          locales seguidas de sentencias ejecutables.
+        </div>
+      </div>
+
+      <!-- Asignacion -->
+      <div class="diagram-section">
+        <div class="diagram-title">Asignacion</div>
+        <div class="railroad">
+          <div class="rail-element non-terminal">Variable</div>
+          <div class="connector">→</div>
+          <div class="rail-element choice">OperadorAsignacion</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">Expresion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">;</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Variable</div>
+          <div class="branch-line">
+            <div class="railroad">
+              <div class="rail-element choice terminal">id</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice">id[Expresion]</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice">*id</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice">id.id</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Operadores de Asignacion</div>
+          <div class="branch-line">
+            <div class="railroad">
+              <div class="rail-element choice terminal">=</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice terminal">+=</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice terminal">-=</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice terminal">*=</div>
+              <div class="connector">|</div>
+              <div class="rail-element choice terminal">/=</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- For Loop -->
+      <div class="diagram-section">
+        <div class="diagram-title">Estructura For</div>
+        <div class="railroad">
+          <div class="rail-element terminal">for</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">(</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">Inicializacion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">;</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">Condicion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">;</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">Actualizacion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">)</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">Sentencia</div>
+        </div>
+        <div class="explanation">
+          <strong>Estructura For:</strong> Todas las partes (inicializacion, condicion, actualizacion) son opcionales,
+          permitiendo bucles infinitos o configuraciones personalizadas.
+        </div>
+      </div>
+
+      <!-- Switch -->
+      <div class="diagram-section">
+        <div class="diagram-title">Estructura Switch</div>
+        <div class="railroad">
+          <div class="rail-element terminal">switch</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">(</div>
+          <div class="connector">→</div>
+          <div class="rail-element non-terminal">Expresion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">)</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">{</div>
+          <div class="connector">→</div>
+          <div class="rail-element repetition">Caso</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">default</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">}</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Caso</div>
+          <div class="branch-line">
+            <div class="railroad">
+              <div class="rail-element terminal">case</div>
+              <div class="connector">→</div>
+              <div class="rail-element non-terminal">Expresion</div>
+              <div class="connector">→</div>
+              <div class="rail-element terminal">:</div>
+              <div class="connector">→</div>
+              <div class="rail-element repetition">Sentencia</div>
+              <div class="connector">→</div>
+              <div class="rail-element optional">break;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Llamadas a Funcion -->
+      <div class="diagram-section">
+        <div class="diagram-title">Llamada a Funcion</div>
+        <div class="railroad">
+          <div class="rail-element terminal">id</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">(</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">Argumentos</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">)</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Lista de Argumentos</div>
+          <div class="branch-line">
+            <div class="railroad">
+              <div class="rail-element non-terminal">Expresion</div>
+              <div class="connector">→</div>
+              <div class="rail-element repetition">, Expresion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Declaracion de Arreglos -->
+      <div class="diagram-section">
+        <div class="diagram-title">Declaracion de Arreglos</div>
+        <div class="railroad">
+          <div class="rail-element non-terminal">Tipo</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">id</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">[</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">num</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">]</div>
+          <div class="connector">→</div>
+          <div class="rail-element optional">Inicializacion</div>
+          <div class="connector">→</div>
+          <div class="rail-element terminal">;</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Inicializacion de Arreglo</div>
+          <div class="branch-line">
+            <div class="railroad">
+              <div class="rail-element terminal">=</div>
+              <div class="connector">→</div>
+              <div class="rail-element terminal">{</div>
+              <div class="connector">→</div>
+              <div class="rail-element non-terminal">Expresion</div>
+              <div class="connector">→</div>
+              <div class="rail-element repetition">, Expresion</div>
+              <div class="connector">→</div>
+              <div class="rail-element terminal">}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preprocesador -->
+      <div class="diagram-section">
+        <div class="diagram-title">Directivas de Preprocesador</div>
+        <div class="railroad">
+          <div class="rail-element terminal">#</div>
+          <div class="connector">→</div>
+          <div class="rail-element choice">Directiva</div>
+        </div>
+
+        <div class="branch">
+          <div class="diagram-title" style="font-size: 1.1em;">Tipos de Directivas</div>
+          <div class="branch-line">
+            <div class="railroad" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="rail-element choice terminal">include</div>
+                <div class="connector">→</div>
+                <div class="rail-element choice">&lt;biblioteca.h&gt;</div>
+                <span style="color: #7f8c8d;">o</span>
+                <div class="rail-element choice">"biblioteca.h"</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="rail-element choice terminal">define</div>
+                <div class="connector">→</div>
+                <div class="rail-element terminal">id</div>
+                <div class="connector">→</div>
+                <div class="rail-element choice">Valor</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leyenda -->
+      <div class="legend">
+        <h3>Leyenda de Elementos</h3>
+        <div class="legend-items">
+          <div class="legend-item">
+            <div class="legend-sample terminal">terminal</div>
+            <span>Simbolos terminales (palabras clave, operadores)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-sample non-terminal">NoTerminal</div>
+            <span>Simbolos no terminales (reglas de gramatica)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-sample optional">Opcional</div>
+            <span>Elementos opcionales (pueden omitirse)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-sample repetition">Repeticion</div>
+            <span>Elementos que pueden repetirse (0 o mas veces)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-sample choice">Eleccion</div>
+            <span>Alternativas (se elige una opcion)</span>
+          </div>
+          <div class="legend-item">
+            <div class="connector">→</div>
+            <span>Secuencia (elementos en orden)</span>
+          </div>
+          <div class="legend-item">
+            <div class="connector">|</div>
+            <span>Disyuncion (O logico)</span>
+          </div>
+        </div>
+
+        <div class="explanation" style="margin-top: 20px;">
+          <strong>Nota:</strong> Este diagrama muestra una version simplificada y educativa de la gramatica de C.
+          Los diagramas de Conway (o de sintaxis)srepresentar las reglas de produccion
+          de una gramatica, facilitando la comprension del flujo sintactico del lenguaje.
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
+
 </html>

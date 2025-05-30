@@ -7,7 +7,7 @@ exports.analizar = (codigo) => {
   ];
 
   // Regex  - patrones ordenados por especificidad
-  // IMPORTANTE: Los patrones más específicos van PRIMERO
+  // IMPORTANTE: Los patrones mas especificos van PRIMERO
   const regex = /(=<|=>|=!|!>|!<|<>)|(#\w+)|(\"(?:[^"\\]|\\.)*\"?)|(\"[^"]*$)|('(?:[^'\\]|\\.)*'?)|('$)|(<.*?>)|(\/\/.*)|\/\*[\s\S]*?\*\/|(\/\*[\s\S]*$)|(0x[0-9a-fA-F]*[g-zG-Z]+[0-9a-fA-F]*)|(\d+\.\d*\.[\d.]*)|(\d*\.\d+\.[\d.]*)|(\d+\.\d+e[+-]?\d+)|(\d+e[+-]?\d+)|(\d+\.\d+e[+-]?$)|(\d+e[+-]?$)|(\d+e$)|(0x[0-9a-fA-F]+)|(\d+\.\d+)|(\d+\.)|([0-9]+[a-zA-Z_][a-zA-Z0-9_]*)|([a-zA-Z_][a-zA-Z0-9_]*[$@#%^&`~\\]+[a-zA-Z0-9_]*)|([=!<>]=?|&&|\|\||\+\+|--|[+\-*/%=<>!&])|(\d+)|([a-zA-Z_][a-zA-Z0-9_]*)|([;:,(){}[\]])|(\S)/g;
 
   let match;
@@ -20,22 +20,22 @@ exports.analizar = (codigo) => {
     'Palabra clave': 1,
     'Preprocesador': 1,
     'Cadena de texto': 1,
-    'Carácter': 1,
-    'Número decimal': 1,
-    'Número entero': 1,
-    'Número hexadecimal': 1,
+    'Caracter': 1,
+    'Numero decimal': 1,
+    'Numero entero': 1,
+    'Numero hexadecimal': 1,
     'Comentario': 1,
-    'Operador lógico': 1,
+    'Operador logico': 1,
     'Operador relacional': 1,
-    'Operador aritmético': 1,
-    'Operador de asignación': 1,
+    'Operador aritmetico': 1,
+    'Operador de asignacion': 1,
     'Operador de incremento-decremento': 1,
     'Delimitador': 1,
     'Archivo de biblioteca': 1,
-    'Error léxico': 1
+    'Error lexico': 1
   };
 
-  // Función para calcular el número de línea basado en la posición
+  // Funcion para calcular el numero de linea basado en la posicion
   const calcularLinea = (posicion) => {
     return codigo.substring(0, posicion).split('\n').length;
   };
@@ -46,10 +46,10 @@ exports.analizar = (codigo) => {
     const numeroLinea = calcularLinea(posicion);
     let categoria = '';
 
-    // Clasificación detallada con detección de errores
-    // OPERADORES INVÁLIDOS PRIMERO (=<, =>, =!, !>, !<, <>)
+    // Clasificacion detallada con deteccion de errores
+    // OPERADORES INVaLIDOS PRIMERO (=<, =>, =!, !>, !<, <>)
     if (/^=<$|^=>$|^=!$|^!>$|^!<$|^<>$/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     } else if (palabrasClave.includes(lexema)) {
       categoria = 'Palabra clave';
     } else if (/^<.*?>$/.test(lexema)) {
@@ -57,73 +57,73 @@ exports.analizar = (codigo) => {
     } else if (/^#\w+$/.test(lexema)) {
       categoria = 'Preprocesador';
     } 
-    // Cadenas válidas
+    // Cadenas validas
     else if (/^"(?:[^"\\]|\\.)*"$/.test(lexema)) {
       categoria = 'Cadena de texto';
     } 
     // Cadenas mal formadas
     else if (/^"[^"]*$/.test(lexema) || /^".*\\.$/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
-    // Caracteres válidos - Solo un carácter o secuencia de escape válida
+    // Caracteres validos - Solo un caracter o secuencia de escape valida
     else if (/^'(?:[^'\\]|\\[nrtbfav\\'"0])'$/.test(lexema)) {
-      categoria = 'Carácter';
+      categoria = 'Caracter';
     }
-    // Caracteres mal formados - múltiples caracteres, vacío o mal cerrado
+    // Caracteres mal formados - multiples caracteres, vacio o mal cerrado
     else if (/^'[^']*$/.test(lexema) || /^'..+'$/.test(lexema) || /^''$/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
-    // Comentarios válidos (NO se agregan a la tabla de tokens)
+    // Comentarios validos (NO se agregan a la tabla de tokens)
     else if (/^\/\/.*$/.test(lexema) || /^\/\*[\s\S]*?\*\/$/.test(lexema)) {
-      continue; // Ignorar comentarios válidos
+      continue; // Ignorar comentarios validos
     }
     // Comentarios mal formados
     else if (/^\/\*[\s\S]*$/.test(lexema) && !lexema.endsWith('*/')) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
-    // Números hexadecimales válidos
+    // Numeros hexadecimales validos
     else if (/^0x[0-9a-fA-F]+$/.test(lexema)) {
-      categoria = 'Número hexadecimal';
+      categoria = 'Numero hexadecimal';
     }
-    // Hexadecimal con dígitos inválidos
+    // Hexadecimal con digitos invalidos
     else if (/^0x[0-9a-fA-F]*[g-zG-Z]+[0-9a-fA-F]*$/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
-    // Números en notación científica válidos (332.41e-1, 123e+5, etc.)
+    // Numeros en notacion cientifica validos (332.41e-1, 123e+5, etc.)
     else if (/^\d+\.\d+e[+-]?\d+$/.test(lexema) || /^\d+e[+-]?\d+$/.test(lexema)) {
-      categoria = 'Número decimal';
+      categoria = 'Numero decimal';
     }
-    // Números mal formados (múltiples puntos, notación científica incorrecta, etc.)
+    // Numeros mal formados (multiples puntos, notacion cientifica incorrecta, etc.)
     else if (/^\d+\.\d*\.[\d.]*$/.test(lexema) || /^\d*\.\d+\.[\d.]*$/.test(lexema) || 
              /^\d+\.\d+e[+-]?$/.test(lexema) || /^\d+e[+-]?$/.test(lexema) || 
              /^\d+e$/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
-    // Números decimales válidos
+    // Numeros decimales validos
     else if (/^\d+\.\d+$/.test(lexema)) {
-      categoria = 'Número decimal';
+      categoria = 'Numero decimal';
     }
-    // Números con punto pero sin decimales (ej: 123.)
+    // Numeros con punto pero sin decimales (ej: 123.)
     else if (/^\d+\.$/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
-    // Números enteros válidos
+    // Numeros enteros validos
     else if (/^\d+$/.test(lexema)) {
-      categoria = 'Número entero';
+      categoria = 'Numero entero';
     }
-    // Identificadores que empiezan con número (123variable)
+    // Identificadores que empiezan con numero (123variable)
     else if (/^[0-9]+[a-zA-Z_]+/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
     // Identificadores con caracteres especiales (var$especial se detecta completo)
     else if (/^[a-zA-Z_][a-zA-Z0-9_]*[$@#%^&`~\\]+[a-zA-Z0-9_]*$/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
-    // Operadores lógicos
+    // Operadores logicos
     else if (/^&&$|^\|\|$|^!$/.test(lexema)) {
-      categoria = 'Operador lógico';
+      categoria = 'Operador logico';
     }
-    // Operadores relacionales válidos
+    // Operadores relacionales validos
     else if (/^==$|^!=$|^<=$|^>=$|^<$|^>$/.test(lexema)) {
       categoria = 'Operador relacional';
     }
@@ -131,43 +131,43 @@ exports.analizar = (codigo) => {
     else if (/^\+\+$|^--$/.test(lexema)) {
       categoria = 'Operador de incremento-decremento';
     }
-    // Operador de asignación
+    // Operador de asignacion
     else if (/^=$/.test(lexema)) {
-      categoria = 'Operador de asignación';
+      categoria = 'Operador de asignacion';
     }
-    // Operadores aritméticos (incluyendo % y &)
+    // Operadores aritmeticos (incluyendo % y &)
     else if (/^[+\-*/%&]$/.test(lexema)) {
-      categoria = 'Operador aritmético';
+      categoria = 'Operador aritmetico';
     }
     // Delimitadores
     else if (/^[;:,(){}[\]]$/.test(lexema)) {
       categoria = 'Delimitador';
     }
-    // Identificadores válidos (con verificación de palabras clave pegadas)
+    // Identificadores validos (con verificacion de palabras clave pegadas)
     else if (/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(lexema)) {
-      // Verificar si es una palabra clave pegada directamente con números o letras
+      // Verificar si es una palabra clave pegada directamente con numeros o letras
       let esPalabraPegada = false;
       for (let palabra of palabrasClave) {
         if (lexema.startsWith(palabra) && lexema.length > palabra.length) {
           const resto = lexema.substring(palabra.length);
           
-          // Es error si la palabra clave está seguida directamente de dígitos
+          // Es error si la palabra clave esta seguida directamente de digitos
           // Ejemplo: int123, if456, while789
           if (/^[0-9]/.test(resto)) {
-            categoria = 'Error léxico';
+            categoria = 'Error lexico';
             esPalabraPegada = true;
             break;
           }
           
-          // También es error si es claramente una palabra clave pegada con otra palabra
+          // Tambien es error si es claramente una palabra clave pegada con otra palabra
           // pero solo para casos obvios, permitiendo palabras naturales como "dos"
           if (lexema === palabra + resto && resto.length <= 6) {
-            // Lista específica de palabras que SÍ son válidas aunque contengan palabras clave
+            // Lista especifica de palabras que Si son validas aunque contengan palabras clave
             const palabrasValidas = ['dos', 'case', 'else', 'char', 'void'];
             if (!palabrasValidas.includes(lexema)) {
               // Para casos como "intnumero", "ifcondition", etc.
               if (resto.match(/^(numero|condition|statement|variable|function|method)$/i)) {
-                categoria = 'Error léxico';
+                categoria = 'Error lexico';
                 esPalabraPegada = true;
                 break;
               }
@@ -180,9 +180,9 @@ exports.analizar = (codigo) => {
         categoria = 'Identificador';
       }
     }
-    // Caracteres no reconocidos específicos (removido & ya que es operador válido)
+    // Caracteres no reconocidos especificos (removido & ya que es operador valido)
     else if (/^[@#$^`~\\]$/.test(lexema)) {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
     // Espacios en blanco (ignorar)
     else if (/^\s+$/.test(lexema)) {
@@ -190,7 +190,7 @@ exports.analizar = (codigo) => {
     }
     // Cualquier otra cosa
     else {
-      categoria = 'Error léxico';
+      categoria = 'Error lexico';
     }
 
     let token = 0;
@@ -204,7 +204,7 @@ exports.analizar = (codigo) => {
       contadores[categoria] = token + 1;
     }
 
-    // Crear el token con el número de línea
+    // Crear el token con el numero de linea
     tablaTokens.push(new Token(lexema, categoria, token, numeroLinea));
   }
 

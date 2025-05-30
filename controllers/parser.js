@@ -49,7 +49,7 @@ class Parser {
   }
 
   DeclaracionOFuncion() {
-    const nodo = new NodoArbol("Declaración/Función");
+    const nodo = new NodoArbol("Declaracion/Funcion");
     const tipo = this.match('Palabra clave');
     if (tipo) nodo.agregarHijo(new NodoArbol(tipo.lexema));
     
@@ -65,7 +65,7 @@ class Parser {
   }
 
   Funcion() {
-    const nodo = new NodoArbol("Función");
+    const nodo = new NodoArbol("Funcion");
     this.matchLexema('(');
     this.Parametros(nodo);
     this.matchLexema(')');
@@ -76,10 +76,10 @@ class Parser {
   }
 
   Parametros(nodoPadre) {
-    const nodo = new NodoArbol("Parámetros");
+    const nodo = new NodoArbol("Parametros");
     
     while (this.verToken() && this.verToken().lexema !== ')') {
-      const nodoParametro = new NodoArbol("Parámetro");
+      const nodoParametro = new NodoArbol("Parametro");
       
       const tipo = this.match('Palabra clave');
       if (!tipo) break;
@@ -119,9 +119,9 @@ class Parser {
     }
   }
 
-  // Inicialización con operador como nodo padre
+  // Inicializacion con operador como nodo padre
   DeclaracionVariable() {
-    const nodo = new NodoArbol("Declaración");
+    const nodo = new NodoArbol("Declaracion");
     const tipo = this.match('Palabra clave');
     
     const nodoTipo = new NodoArbol("Tipo");
@@ -136,7 +136,7 @@ class Parser {
       if (token.categoria === 'Identificador') {
         const nombreVar = this.siguiente().lexema;
         
-        // Si hay inicialización, el '=' es el nodo padre
+        // Si hay inicializacion, el '=' es el nodo padre
         if (this.verLexema('=')) {
           const operadorAsignacion = this.siguiente().lexema; // consume el '='
           
@@ -144,14 +144,14 @@ class Parser {
           const nodoAsignacion = new NodoArbol(operadorAsignacion);
           nodoAsignacion.agregarHijo(new NodoArbol(nombreVar)); // lado izquierdo
           
-          // Agregar el valor de inicialización (lado derecho)
+          // Agregar el valor de inicializacion (lado derecho)
           if (this.verToken() && this.verToken().lexema !== ',' && this.verToken().lexema !== ';') {
             nodoAsignacion.agregarHijo(new NodoArbol(this.siguiente().lexema));
           }
           
           nodoVariables.agregarHijo(nodoAsignacion);
         } else {
-          // Solo declaración sin inicialización
+          // Solo declaracion sin inicializacion
           nodoVariables.agregarHijo(new NodoArbol(nombreVar));
         }
       } else {
@@ -170,28 +170,28 @@ class Parser {
     return nodo;
   }
 
-  // Operador de asignación como nodo padre
+  // Operador de asignacion como nodo padre
   Asignacion() {
     const variable = this.siguiente().lexema;
     
-    // Verificar qué tipo de operador viene después
+    // Verificar que tipo de operador viene despues
     if (this.verLexema('=')) {
-      // Asignación simple: el '=' es el nodo padre
+      // Asignacion simple: el '=' es el nodo padre
       const operador = this.siguiente().lexema;
       const nodoAsignacion = new NodoArbol(operador);
       
       nodoAsignacion.agregarHijo(new NodoArbol(variable)); // lado izquierdo
       
-      // Lado derecho (puede ser una expresión compleja)
+      // Lado derecho (puede ser una expresion compleja)
       const valorDerecho = this.ExpresionHastaDelimitador([';']);
       nodoAsignacion.agregarHijo(valorDerecho);
       
       this.matchLexema(';');
       return nodoAsignacion;
       
-    } else if (this.verCategoria('Operador aritmético') && 
+    } else if (this.verCategoria('Operador aritmetico') && 
                ['+=', '-=', '*=', '/=', '%='].includes(this.verToken().lexema)) {
-      // Asignación compuesta: el operador es el nodo padre
+      // Asignacion compuesta: el operador es el nodo padre
       const operador = this.siguiente().lexema;
       const nodoAsignacion = new NodoArbol(operador);
       
@@ -206,7 +206,7 @@ class Parser {
       
     } else if (this.verCategoria('Operador de incremento-decremento')) {
       // Operadores unarios: mantener estructura actual (++ y -- no son binarios)
-      const nodo = new NodoArbol("Expresión Unaria");
+      const nodo = new NodoArbol("Expresion Unaria");
       nodo.agregarHijo(new NodoArbol(variable));
       nodo.agregarHijo(new NodoArbol(this.siguiente().lexema));
       
@@ -215,7 +215,7 @@ class Parser {
     }
     
     // Fallback para otros casos
-    const nodo = new NodoArbol("Asignación");
+    const nodo = new NodoArbol("Asignacion");
     nodo.agregarHijo(new NodoArbol(variable));
     
     if (this.verToken() && this.verToken().lexema !== ';') {
@@ -235,7 +235,7 @@ class Parser {
     return nodo;
   }
 
-  // Función auxiliar para parsear expresiones hasta delimitadores
+  // Funcion auxiliar para parsear expresiones hasta delimitadores
   ExpresionHastaDelimitador(delimitadores) {
     const tokens = [];
     
@@ -250,7 +250,7 @@ class Parser {
       return this.construirExpresionBinaria(tokens);
     }
     
-    return new NodoArbol("expresión_vacía");
+    return new NodoArbol("expresion_vacia");
   }
 
   // Construir expresiones binarias con operadores como nodos padre
@@ -287,8 +287,8 @@ class Parser {
       }
     }
     
-    // Si no hay operadores binarios, crear nodo de expresión simple
-    const nodo = new NodoArbol("Expresión");
+    // Si no hay operadores binarios, crear nodo de expresion simple
+    const nodo = new NodoArbol("Expresion");
     tokens.forEach(token => {
       nodo.agregarHijo(new NodoArbol(token.lexema));
     });
@@ -313,7 +313,7 @@ class Parser {
       return this.construirExpresionBinaria(tokens);
     }
     
-    return new NodoArbol("Expresión");
+    return new NodoArbol("Expresion");
   }
 
   If() {
@@ -321,7 +321,7 @@ class Parser {
     this.match('Palabra clave');
     this.matchLexema('(');
     
-    const nodoCondicion = new NodoArbol("Condición");
+    const nodoCondicion = new NodoArbol("Condicion");
     const expresion = this.Expresion();
     nodoCondicion.agregarHijo(expresion);
     nodo.agregarHijo(nodoCondicion);
@@ -357,13 +357,13 @@ class Parser {
     this.match('Palabra clave');
     this.matchLexema('(');
     
-    // Estructura más clara manteniendo asignaciones mejoradas
-    const nodoInicializacion = new NodoArbol("Inicialización");
+    // Estructura mas clara manteniendo asignaciones mejoradas
+    const nodoInicializacion = new NodoArbol("Inicializacion");
     const inicializacion = this.Asignacion();
     nodoInicializacion.agregarHijo(inicializacion);
     nodo.agregarHijo(nodoInicializacion);
     
-    const nodoCondicion = new NodoArbol("Condición");
+    const nodoCondicion = new NodoArbol("Condicion");
     nodoCondicion.agregarHijo(this.Expresion());
     nodo.agregarHijo(nodoCondicion);
     
@@ -389,7 +389,7 @@ class Parser {
     this.match('Palabra clave');
     this.matchLexema('(');
     
-    const nodoCondicion = new NodoArbol("Condición");
+    const nodoCondicion = new NodoArbol("Condicion");
     nodoCondicion.agregarHijo(this.Expresion());
     nodo.agregarHijo(nodoCondicion);
     
@@ -417,7 +417,7 @@ class Parser {
     this.match('Palabra clave');
     this.matchLexema('(');
     
-    const nodoCondicion = new NodoArbol("Condición");
+    const nodoCondicion = new NodoArbol("Condicion");
     nodoCondicion.agregarHijo(this.Expresion());
     nodo.agregarHijo(nodoCondicion);
     
@@ -431,7 +431,7 @@ class Parser {
     this.match('Palabra clave');
     this.matchLexema('(');
     
-    const nodoExpresion = new NodoArbol("Expresión Switch");
+    const nodoExpresion = new NodoArbol("Expresion Switch");
     nodoExpresion.agregarHijo(this.Expresion());
     nodo.agregarHijo(nodoExpresion);
     
@@ -469,8 +469,8 @@ class Parser {
         } else if (t.lexema === 'return') {
           nodoCasos.agregarHijo(this.Return());
         } else {
-          // Si no reconoce la instrucción, la consume para evitar bucle infinito
-          this.error(`Instrucción no reconocida en switch: ${t.lexema}`);
+          // Si no reconoce la instruccion, la consume para evitar bucle infinito
+          this.error(`Instruccion no reconocida en switch: ${t.lexema}`);
           this.siguiente();
         }
       }
@@ -503,7 +503,7 @@ class Parser {
       const t = this.verToken();
       if (t.lexema === 'break') {
         nodoCuerpo.agregarHijo(this.InstruccionSimple());
-        break; // Salir después del break
+        break; // Salir despues del break
       } else if (['printf', 'scanf', 'getch'].includes(t.lexema)) {
         nodoCuerpo.agregarHijo(this.LlamadaIO());
       } else if (t.categoria === 'Identificador') {
@@ -524,7 +524,7 @@ class Parser {
       } else if (t.lexema === 'return') {
         nodoCuerpo.agregarHijo(this.Return());
       } else {
-        this.error(`Instrucción no reconocida en case: ${t.lexema}`);
+        this.error(`Instruccion no reconocida en case: ${t.lexema}`);
         this.siguiente();
       }
     }
@@ -550,7 +550,7 @@ class Parser {
       const t = this.verToken();
       if (t.lexema === 'break') {
         nodoCuerpo.agregarHijo(this.InstruccionSimple());
-        break; // Salir después del break
+        break; // Salir despues del break
       } else if (['printf', 'scanf', 'getch'].includes(t.lexema)) {
         nodoCuerpo.agregarHijo(this.LlamadaIO());
       } else if (t.categoria === 'Identificador') {
@@ -571,7 +571,7 @@ class Parser {
       } else if (t.lexema === 'return') {
         nodoCuerpo.agregarHijo(this.Return());
       } else {
-        this.error(`Instrucción no reconocida en default: ${t.lexema}`);
+        this.error(`Instruccion no reconocida en default: ${t.lexema}`);
         this.siguiente();
       }
     }
@@ -584,7 +584,7 @@ class Parser {
   }
 
   LlamadaGenerica() {
-    const nodo = new NodoArbol("Llamada a Función");
+    const nodo = new NodoArbol("Llamada a Funcion");
     
     const nombreFuncion = this.siguiente().lexema;
     nodo.agregarHijo(new NodoArbol(nombreFuncion));
@@ -614,7 +614,7 @@ class Parser {
     
     this.matchLexema('(');
     
-    const nodoParametros = new NodoArbol("Parámetros");
+    const nodoParametros = new NodoArbol("Parametros");
     while (this.verToken() && this.verToken().lexema !== ')') {
       nodoParametros.agregarHijo(new NodoArbol(this.siguiente().lexema));
       if (this.verLexema(',')) this.matchLexema(',');
@@ -669,14 +669,14 @@ class Parser {
   match(categoria) {
     const token = this.verToken();
     if (token && token.categoria === categoria) return this.siguiente();
-    this.error(`Se esperaba ${categoria}, se encontró ${token ? token.lexema : 'EOF'}`);
+    this.error(`Se esperaba ${categoria}, se encontro ${token ? token.lexema : 'EOF'}`);
     return null;
   }
   
   matchLexema(lexema) {
     const token = this.verToken();
     if (token && token.lexema === lexema) return this.siguiente();
-    this.error(`Se esperaba '${lexema}', se encontró ${token ? token.lexema : 'EOF'}`);
+    this.error(`Se esperaba '${lexema}', se encontro ${token ? token.lexema : 'EOF'}`);
     return null;
   }
   
@@ -685,13 +685,13 @@ class Parser {
     if (token && categorias.includes(token.categoria)) {
       return this.siguiente();
     } else {
-      this.error(`Se esperaba una de las categorías: ${categorias.join(' o ')}, se encontró ${token ? token.lexema : 'EOF'}`);
+      this.error(`Se esperaba una de las categorias: ${categorias.join(' o ')}, se encontro ${token ? token.lexema : 'EOF'}`);
       return null;
     }
   }
 
   error(msg) {
-    this.errores.push(`Error: ${msg} (línea ${this.verToken() ? this.verToken().linea : 'EOF'})`);
+    this.errores.push(`Error: ${msg} (linea ${this.verToken() ? this.verToken().linea : 'EOF'})`);
   }
 }
 

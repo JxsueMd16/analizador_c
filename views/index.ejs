@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Analizador Léxico y Sintáctico (subconjunto de C)</title>
+  <title>Analizador Lexico y Sintactico (subconjunto de C)</title>
   <link rel="stylesheet" href="/css/style.css">
 
   <!-- Treant.js CSS -->
@@ -15,7 +15,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>Analizador Léxico y Sintáctico</h1>
+      <h1>Analizador Lexico y Sintactico</h1>
       <p>Subconjunto del Lenguaje C</p>
     </div>
 
@@ -24,42 +24,42 @@
         <form action="/analizar" method="POST">
           <div class="code-input-container">
             <div class="line-numbers" id="lineNumbers">1</div>
-            <textarea name="codigo" id="codigo" rows="15" placeholder="Escribe tu código aquí..." oninput="updateLineNumbers(this)"><%= resultado ? resultado.codigoOriginal : '' %></textarea>
+            <textarea name="codigo" id="codigo" rows="15" placeholder="Escribe tu codigo aqui..." oninput="updateLineNumbers(this)"><%= resultado ? resultado.codigoOriginal : '' %></textarea>
           </div>
           <div class="controls">
-            <button type="submit" class="btn">Analizar Código</button>
-            <button formaction="/analizar-sintactico" formmethod="POST" class="btn btn-secondary">Analizar Sintáctico</button>
-            <a href="/documentacion" class="btn btn-secondary">Ver Documentación</a>
+            <button type="submit" class="btn">Analizar Codigo</button>
+            <button formaction="/analizar-sintactico" formmethod="POST" class="btn btn-secondary">Analizar Sintactico</button>
+            <a href="/documentacion" class="btn btn-secondary">Ver Documentacion</a>
           </div>
         </form>
       </div>
 
       <% if (resultado) { %>
         <div class="success-message">
-          <h3>Análisis Léxico Completado</h3>
+          <h3>Analisis Lexico Completado</h3>
           <% if (resultado.errores === 0) { %>
-            <p>El código ha sido analizado exitosamente sin errores léxicos.</p>
+            <p>El codigo ha sido analizado exitosamente sin errores lexicos.</p>
           <% } else { %>
-            <p>Se encontraron errores léxicos. Revisa el listado abajo.</p>
+            <p>Se encontraron errores lexicos. Revisa el listado abajo.</p>
           <% } %>
         </div>
 
         <div class="results-grid">
           <div class="stats-panel">
-            <h3>Estadísticas</h3>
-            <div class="stat-item"><span class="stat-label">Líneas analizadas:</span><span class="stat-value"><%= resultado.lineasAnalizadas %></span></div>
+            <h3>Estadisticas</h3>
+            <div class="stat-item"><span class="stat-label">Lineas analizadas:</span><span class="stat-value"><%= resultado.lineasAnalizadas %></span></div>
             <div class="stat-item"><span class="stat-label">Tokens generados:</span><span class="stat-value"><%= resultado.tokensGenerados %></span></div>
-            <div class="stat-item"><span class="stat-label">Identificadores únicos:</span><span class="stat-value"><%= resultado.identificadoresUnicos %></span></div>
-            <div class="stat-item"><span class="stat-label">Errores léxicos:</span><span class="stat-value" style="background:#e53e3e;"><%= resultado.errores %></span></div>
+            <div class="stat-item"><span class="stat-label">Identificadores unicos:</span><span class="stat-value"><%= resultado.identificadoresUnicos %></span></div>
+            <div class="stat-item"><span class="stat-label">Errores lexicos:</span><span class="stat-value" style="background:#e53e3e;"><%= resultado.errores %></span></div>
           </div>
 
           <% if (resultado.erroresDetalle.length > 0) { %>
             <div class="error-panel show">
-              <h3>Errores Léxicos Encontrados</h3>
+              <h3>Errores Lexicos Encontrados</h3>
               <% resultado.erroresDetalle.forEach(error => { %>
                 <div class="error-item">
                   <div>Error en lexema: <span class="error-lexeme"><%= error.lexema %></span></div>
-                  <div class="error-line">Línea <%= error.linea %> - Tipo: <%= error.tipo %></div>
+                  <div class="error-line">Linea <%= error.linea %> - Tipo: <%= error.tipo %></div>
                 </div>
               <% }); %>
             </div>
@@ -68,13 +68,13 @@
 
         <div class="table-container">
           <div class="table-header">
-            <h3>Tabla de Símbolos / Identificadores</h3>
-            <div class="table-subtitle">Identificadores únicos encontrados en el código</div>
+            <h3>Tabla de Simbolos / Identificadores</h3>
+            <div class="table-subtitle">Identificadores unicos encontrados en el codigo</div>
           </div>
           <div class="symbols-table">
             <table>
               <thead>
-                <tr><th>ID</th><th>Identificador</th><th>Token</th><th>Primera aparición (línea)</th></tr>
+                <tr><th>ID</th><th>Identificador</th><th>Token</th><th>Primera aparicion (linea)</th></tr>
               </thead>
               <tbody>
                 <% if (resultado.simbolos.length > 0) { %>
@@ -102,7 +102,7 @@
           <div class="symbols-table">
             <table>
               <thead>
-                <tr><th>#</th><th>Línea</th><th>Lexema</th><th>Categoría</th><th>Token</th></tr>
+                <tr><th>#</th><th>Linea</th><th>Lexema</th><th>Categoria</th><th>Token</th></tr>
               </thead>
               <tbody>
                 <% resultado.tokens.forEach((t, index) => { %>
@@ -110,7 +110,7 @@
                     <td><%= index + 1 %></td>
                     <td><%= t.linea %></td>
                     <td><code><%= t.lexema %></code></td>
-                    <td><span class="categoria-tag categoria-<%= t.categoria.toLowerCase().replace(/\s+/g, '-').replace(/[áéíóú]/g, c => ({á:'a',é:'e',í:'i',ó:'o',ú:'u'})[c]) %>"><%= t.categoria %></span></td>
+                    <td><span class="categoria-tag categoria-<%= t.categoria.toLowerCase().replace(/\s+/g, '-').replace(/[aeiou]/g, c => ({a:'a',e:'e',i:'i',o:'o',u:'u'})[c]) %>"><%= t.categoria %></span></td>
                     <td><%= t.token %></td>
                   </tr>
                 <% }); %>
@@ -122,14 +122,14 @@
 
       <% if (arbol) { %>
         <div class="tree-container">
-          <h3>Árbol Sintáctico</h3>
+          <h3>arbol Sintactico</h3>
           <div id="tree-simple" class="Treant"></div>
           <script>
             var dataArbol = <%- JSON.stringify(arbol) %>;
-            console.log("Datos del árbol:", dataArbol);
+            console.log("Datos del arbol:", dataArbol);
 
             if (!dataArbol || Object.keys(dataArbol).length === 0) {
-              document.getElementById('tree-simple').innerHTML = '<p>No se pudo generar el árbol sintáctico</p>';
+              document.getElementById('tree-simple').innerHTML = '<p>No se pudo generar el arbol sintactico</p>';
             } else {
               var config = {
                 chart: {
@@ -151,7 +151,7 @@
 
         <% if (erroresSintacticos && erroresSintacticos.length > 0) { %>
           <div class="error-panel show">
-            <h3>Errores Sintácticos Encontrados</h3>
+            <h3>Errores Sintacticos Encontrados</h3>
             <% erroresSintacticos.forEach(error => { %>
               <div class="error-item">
                 <div><%= error %></div>
@@ -176,11 +176,11 @@
 
      const textarea = document.getElementById('codigo');
 
-      // Al cargar la página, restaurar el contenido guardado
+      // Al cargar la pagina, restaurar el contenido guardado
       window.addEventListener('load', () => {
         const guardado = localStorage.getItem('codigo');
         if (guardado) textarea.value = guardado;
-        updateLineNumbers(textarea); // Para que también actualice las líneas
+        updateLineNumbers(textarea); // Para que tambien actualice las lineas
       });
 
       // Cada vez que el usuario escriba, guardar en localStorage
