@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Analizador Lexico y Sintactico (subconjunto de C)</title>
@@ -12,6 +13,7 @@
   <!-- Treant.js -->
   <script src="https://cdn.jsdelivr.net/gh/fperucic/treant-js/Treant.min.js"></script>
 </head>
+
 <body>
   <div class="container">
     <div class="header">
@@ -24,11 +26,25 @@
         <form action="/analizar" method="POST">
           <div class="code-input-container">
             <div class="line-numbers" id="lineNumbers">1</div>
-            <textarea name="codigo" id="codigo" rows="15" placeholder="Escribe tu codigo aqui..." oninput="updateLineNumbers(this)"><%= resultado ? resultado.codigoOriginal : '' %></textarea>
+            <textarea name="codigo" id="codigo" rows="15" placeholder="Escribe tu codigo aqui..."
+              oninput="updateLineNumbers(this)"><%= resultado ? resultado.codigoOriginal : '' %></textarea>
           </div>
+          <div class="example-buttons">
+            <p><strong>Cargar Ejemplos Rápidos:</strong></p>
+            <div class="btn-group">
+              <button type="button" class="btn-example" onclick="cargarEjemplo('holaMundo')">Hola Mundo</button>
+              <button type="button" class="btn-example" onclick="cargarEjemplo('ifelse')">If / Else</button>
+              <button type="button" class="btn-example" onclick="cargarEjemplo('whileCasos')">While</button>
+              <button type="button" class="btn-example" onclick="cargarEjemplo('forLoop')">For Loop</button>
+              <button type="button" class="btn-example" onclick="cargarEjemplo('codigoCompleto')">Código Completo</button>
+              <button type="button" class="btn-example btn-clear" onclick="limpiarCodigo()">Limpiar</button>
+            </div>
+          </div>
+
           <div class="controls">
             <button type="submit" class="btn">Analizar Codigo</button>
-            <button formaction="/analizar-sintactico" formmethod="POST" class="btn btn-secondary">Analizar Sintactico</button>
+            <button formaction="/analizar-sintactico" formmethod="POST" class="btn btn-secondary">Analizar
+              Sintactico</button>
             <a href="/documentacion" class="btn btn-secondary">Ver Documentacion</a>
           </div>
         </form>
@@ -37,33 +53,45 @@
       <% if (resultado) { %>
         <div class="success-message">
           <h3>Analisis Lexico Completado</h3>
-          <% if (resultado.errores === 0) { %>
+          <% if (resultado.errores===0) { %>
             <p>El codigo ha sido analizado exitosamente sin errores lexicos.</p>
-          <% } else { %>
-            <p>Se encontraron errores lexicos. Revisa el listado abajo.</p>
-          <% } %>
+            <% } else { %>
+              <p>Se encontraron errores lexicos. Revisa el listado abajo.</p>
+              <% } %>
         </div>
 
         <div class="results-grid">
           <div class="stats-panel">
             <h3>Estadisticas</h3>
-            <div class="stat-item"><span class="stat-label">Lineas analizadas:</span><span class="stat-value"><%= resultado.lineasAnalizadas %></span></div>
-            <div class="stat-item"><span class="stat-label">Tokens generados:</span><span class="stat-value"><%= resultado.tokensGenerados %></span></div>
-            <div class="stat-item"><span class="stat-label">Identificadores unicos:</span><span class="stat-value"><%= resultado.identificadoresUnicos %></span></div>
-            <div class="stat-item"><span class="stat-label">Errores lexicos:</span><span class="stat-value" style="background:#e53e3e;"><%= resultado.errores %></span></div>
+            <div class="stat-item"><span class="stat-label">Lineas analizadas:</span><span class="stat-value">
+                <%= resultado.lineasAnalizadas %>
+              </span></div>
+            <div class="stat-item"><span class="stat-label">Tokens generados:</span><span class="stat-value">
+                <%= resultado.tokensGenerados %>
+              </span></div>
+            <div class="stat-item"><span class="stat-label">Identificadores unicos:</span><span class="stat-value">
+                <%= resultado.identificadoresUnicos %>
+              </span></div>
+            <div class="stat-item"><span class="stat-label">Errores lexicos:</span><span class="stat-value"
+                style="background:#e53e3e;">
+                <%= resultado.errores %>
+              </span></div>
           </div>
 
-          <% if (resultado.erroresDetalle.length > 0) { %>
+          <% if (resultado.erroresDetalle.length> 0) { %>
             <div class="error-panel show">
               <h3>Errores Lexicos Encontrados</h3>
-              <% resultado.erroresDetalle.forEach(error => { %>
+              <% resultado.erroresDetalle.forEach(error=> { %>
                 <div class="error-item">
-                  <div>Error en lexema: <span class="error-lexeme"><%= error.lexema %></span></div>
-                  <div class="error-line">Linea <%= error.linea %> - Tipo: <%= error.tipo %></div>
+                  <div>Error en lexema: <span class="error-lexeme">
+                      <%= error.lexema %>
+                    </span></div>
+                  <div class="error-line">Linea <%= error.linea %> - Tipo: <%= error.tipo %>
+                  </div>
                 </div>
-              <% }); %>
+                <% }); %>
             </div>
-          <% } %>
+            <% } %>
         </div>
 
         <div class="table-container">
@@ -74,21 +102,34 @@
           <div class="symbols-table">
             <table>
               <thead>
-                <tr><th>ID</th><th>Identificador</th><th>Token</th><th>Primera aparicion (linea)</th></tr>
+                <tr>
+                  <th>ID</th>
+                  <th>Identificador</th>
+                  <th>Token</th>
+                  <th>Primera aparicion (linea)</th>
+                </tr>
               </thead>
               <tbody>
-                <% if (resultado.simbolos.length > 0) { %>
-                  <% resultado.simbolos.forEach(simbolo => { %>
+                <% if (resultado.simbolos.length> 0) { %>
+                  <% resultado.simbolos.forEach(simbolo=> { %>
                     <tr>
-                      <td><%= simbolo.id %></td>
+                      <td>
+                        <%= simbolo.id %>
+                      </td>
                       <td><code><%= simbolo.nombre %></code></td>
-                      <td><%= simbolo.token %></td>
-                      <td><%= simbolo.linea %></td>
+                      <td>
+                        <%= simbolo.token %>
+                      </td>
+                      <td>
+                        <%= simbolo.linea %>
+                      </td>
                     </tr>
-                  <% }); %>
-                <% } else { %>
-                  <tr><td colspan="4" class="no-results">No se encontraron identificadores</td></tr>
-                <% } %>
+                    <% }); %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="4" class="no-results">No se encontraron identificadores</td>
+                        </tr>
+                        <% } %>
               </tbody>
             </table>
           </div>
@@ -102,64 +143,81 @@
           <div class="symbols-table">
             <table>
               <thead>
-                <tr><th>#</th><th>Linea</th><th>Lexema</th><th>Categoria</th><th>Token</th></tr>
+                <tr>
+                  <th>#</th>
+                  <th>Linea</th>
+                  <th>Lexema</th>
+                  <th>Categoria</th>
+                  <th>Token</th>
+                </tr>
               </thead>
               <tbody>
-                <% resultado.tokens.forEach((t, index) => { %>
+                <% resultado.tokens.forEach((t, index)=> { %>
                   <tr>
-                    <td><%= index + 1 %></td>
-                    <td><%= t.linea %></td>
+                    <td>
+                      <%= index + 1 %>
+                    </td>
+                    <td>
+                      <%= t.linea %>
+                    </td>
                     <td><code><%= t.lexema %></code></td>
-                    <td><span class="categoria-tag categoria-<%= t.categoria.toLowerCase().replace(/\s+/g, '-').replace(/[aeiou]/g, c => ({a:'a',e:'e',i:'i',o:'o',u:'u'})[c]) %>"><%= t.categoria %></span></td>
-                    <td><%= t.token %></td>
+                    <td><span
+                        class="categoria-tag categoria-<%= t.categoria.toLowerCase().replace(/\s+/g, '-').replace(/[aeiou]/g, c => ({a:'a',e:'e',i:'i',o:'o',u:'u'})[c]) %>">
+                        <%= t.categoria %>
+                      </span></td>
+                    <td>
+                      <%= t.token %>
+                    </td>
                   </tr>
-                <% }); %>
+                  <% }); %>
               </tbody>
             </table>
           </div>
         </div>
-      <% } %>
-
-      <% if (arbol) { %>
-        <div class="tree-container">
-          <h3>arbol Sintactico</h3>
-          <div id="tree-simple" class="Treant"></div>
-          <script>
-            var dataArbol = <%- JSON.stringify(arbol) %>;
-            console.log("Datos del arbol:", dataArbol);
-
-            if (!dataArbol || Object.keys(dataArbol).length === 0) {
-              document.getElementById('tree-simple').innerHTML = '<p>No se pudo generar el arbol sintactico</p>';
-            } else {
-              var config = {
-                chart: {
-                  container: "#tree-simple",
-                  rootOrientation: 'NORTH',
-                  node: { HTMLclass: 'node nodo-treant' },
-                  connectors: { 
-                    type: 'step', 
-                    style: { 'stroke-width': 2, 'stroke': '#3498db' }
-                  },
-                  animation: { nodeAnimation: "easeOutBounce", nodeSpeed: 700, connectorsAnimation: "bounce", connectorsSpeed: 700 }
-                },
-                nodeStructure: dataArbol
-              };
-              new Treant(config);
-            }
-          </script>
-        </div>
-
-        <% if (erroresSintacticos && erroresSintacticos.length > 0) { %>
-          <div class="error-panel show">
-            <h3>Errores Sintacticos Encontrados</h3>
-            <% erroresSintacticos.forEach(error => { %>
-              <div class="error-item">
-                <div><%= error %></div>
-              </div>
-            <% }); %>
-          </div>
         <% } %>
-      <% } %>
+
+          <% if (arbol) { %>
+            <div class="tree-container">
+              <h3>arbol Sintactico</h3>
+              <div id="tree-simple" class="Treant"></div>
+              <script>
+                var dataArbol = <% - JSON.stringify(arbol) %>;
+                console.log("Datos del arbol:", dataArbol);
+
+                if (!dataArbol || Object.keys(dataArbol).length === 0) {
+                  document.getElementById('tree-simple').innerHTML = '<p>No se pudo generar el arbol sintactico</p>';
+                } else {
+                  var config = {
+                    chart: {
+                      container: "#tree-simple",
+                      rootOrientation: 'NORTH',
+                      node: { HTMLclass: 'node nodo-treant' },
+                      connectors: {
+                        type: 'step',
+                        style: { 'stroke-width': 2, 'stroke': '#3498db' }
+                      },
+                      animation: { nodeAnimation: "easeOutBounce", nodeSpeed: 700, connectorsAnimation: "bounce", connectorsSpeed: 700 }
+                    },
+                    nodeStructure: dataArbol
+                  };
+                  new Treant(config);
+                }
+              </script>
+            </div>
+
+            <% if (erroresSintacticos && erroresSintacticos.length> 0) { %>
+              <div class="error-panel show">
+                <h3>Errores Sintacticos Encontrados</h3>
+                <% erroresSintacticos.forEach(error=> { %>
+                  <div class="error-item">
+                    <div>
+                      <%= error %>
+                    </div>
+                  </div>
+                  <% }); %>
+              </div>
+              <% } %>
+                <% } %>
     </div>
   </div>
 
@@ -174,19 +232,131 @@
       lineNumbers.textContent = lineNumberText;
     }
 
-     const textarea = document.getElementById('codigo');
+    const textarea = document.getElementById('codigo');
 
-      // Al cargar la pagina, restaurar el contenido guardado
-      window.addEventListener('load', () => {
-        const guardado = localStorage.getItem('codigo');
-        if (guardado) textarea.value = guardado;
-        updateLineNumbers(textarea); // Para que tambien actualice las lineas
-      });
+    // Al cargar la pagina, restaurar el contenido guardado
+    window.addEventListener('load', () => {
+      const guardado = localStorage.getItem('codigo');
+      if (guardado) textarea.value = guardado;
+      updateLineNumbers(textarea); // Para que tambien actualice las lineas
+    });
 
-      // Cada vez que el usuario escriba, guardar en localStorage
-      textarea.addEventListener('input', () => {
-        localStorage.setItem('codigo', textarea.value);
-      });
-  </script>
+    // Cada vez que el usuario escriba, guardar en localStorage
+    textarea.addEventListener('input', () => {
+      localStorage.setItem('codigo', textarea.value);
+    });
+
+    function cargarEjemplo(tipo) {
+      const ejemplos = {
+        holaMundo: `#include <stdio.h>
+
+          int main() {
+              printf("Hola, mundo!\\n");
+              return 0;
+          }`,
+                  ifelse: `#include <stdio.h>
+
+          int main() {
+              int x = 7;
+              int y = 7;
+
+              if (x == y) {
+                  printf("Son iguales");
+              } else {
+                  printf("Son diferentes");
+              }
+
+              return 0;
+          }`,
+                  whileCasos: `#include <stdio.h>
+
+          int main() {
+              int i = 1;
+              int suma = 0;
+
+              while (i <= 5) {
+                  printf("Iteración %d\\n", i);
+                  suma += i;
+                  i++;
+              }
+
+              printf("Suma final: %d\\n", suma);
+              return 0;
+          }`,
+                  forLoop: `#include <stdio.h>
+
+          int main() {
+              int i;
+
+              for (i = 0; i < 3; i++) {
+                  printf("Hola\\n");
+              }
+
+              return 0;
+          }`,
+                  codigoCompleto: `#include <stdio.h>
+          #include <conio.h>
+
+          int sumar(int a, int b) {
+              return a + b;
+          }
+
+          void saludar() {
+              printf("¡Hola, mundo!\\n");
+          }
+
+          int main() {
+              int opcion, resultado, i = 0;
+
+              printf("Ingrese una opción: ");
+              scanf("%d", &opcion);
+
+              switch (opcion) {
+                  case 1:
+                      printf("Opción 1 seleccionada\\n");
+                      break;
+                  case 2:
+                      printf("Opción 2 seleccionada\\n");
+                      break;
+                  default:
+                      printf("Opción inválida\\n");
+              }
+
+              resultado = sumar(5, 3);
+              printf("La suma es: %d\\n", resultado);
+
+              for (i = 0; i < 5; i++) {
+                  printf("Iteración %d\\n", i);
+              }
+
+              if (resultado > 5) {
+                  printf("Resultado mayor a 5\\n");
+              } else {
+                  printf("Resultado menor o igual a 5\\n");
+              }
+
+              saludar();
+
+              getch(); // Esperar tecla
+              return 0;
+          }`
+      };
+
+      const textarea = document.getElementById('codigo');
+      textarea.value = ejemplos[tipo] || '';
+      updateLineNumbers(textarea);
+      localStorage.setItem('codigo', textarea.value);
+    }
+    
+    function limpiarCodigo() {
+    const textarea = document.getElementById('codigo');
+    textarea.value = '';
+    updateLineNumbers(textarea);
+    localStorage.removeItem('codigo');
+  }
+
+
+      </script>
 </body>
+
 </html>
