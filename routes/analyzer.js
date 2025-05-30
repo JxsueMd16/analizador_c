@@ -28,6 +28,11 @@ router.post('/analizar-sintactico', (req, res) => {
 
 });
 
+// Automatas
+router.get('/automatas', (req, res) => {
+  res.render('automatas');
+});
+
 
 
 // Documentación
