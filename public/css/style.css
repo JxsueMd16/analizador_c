@@ -442,3 +442,26 @@ tr:hover {
 .btn-clear:active {
   background-color: #922b21;
 }
+.automata-container {
+  margin: 30px auto;
+  max-width: 600px;
+  text-align: center;
+  background: #f8f8f8;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 20px;
+}
+
+.svg-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.svg-center svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
