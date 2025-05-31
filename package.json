@@ -3,18 +3,30 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "analizador_c": "file:",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "viz.js": "^2.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JxsueMd16/analizador_c.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JxsueMd16/analizador_c/issues"
+  },
+  "homepage": "https://github.com/JxsueMd16/analizador_c#readme",
+  "description": "",
+  "devDependencies": {
     "nodemon": "^3.1.10"
   }
 }
